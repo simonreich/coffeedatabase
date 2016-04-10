@@ -17,11 +17,14 @@ This file is part of coffeedatabase.
 """
 
 
+# system
+import datetime
+
 # coffeedatabase
 from lib import helper
 
 
-def useradd(fileUser):
+def userAdd(fileUser):
     """ Adds a user to the user database
         fileUser: file name as string
     """
@@ -59,7 +62,7 @@ def useradd(fileUser):
     return 0
 
 
-def userstatus(fileUser):
+def userStatus(fileUser):
     """ Changes user status
         fileUser: file name as string
     """
@@ -108,3 +111,70 @@ def userstatus(fileUser):
     helper.fileWrite(fileUser, dataU)
 
     return 0
+
+
+def userList(fileUser, filePrice, userInactiveMonth):
+    """ Creates a list of all users who had some activity within the last userInactiveMonth month
+        fileUser: file name as string
+        userInactiveMonth: integer that specifies the months of inactiveness
+    """
+
+    now = datetime.datetime.now()
+    year = now.strftime("%Y")
+    month = now.strftime("%m")
+
+    filePrice = year + "/" + month + "/" + filePrice
+    dataPrice = helper.fileOpen(filePrice)
+    dataU = helper.fileOpen(fileUser, True)
+
+    # list last userInactiveMonth months
+    searchM = [[year, month]]
+    monthS = int(month)
+    monthCurr = int(month)
+    yearCurr = int(year)
+    for n in range(1, userInactiveMonth):
+        monthCurr = monthS - int(n)
+        if monthCurr == 0:
+            monthCurr = 12
+            monthS += 12
+            yearCurr -= 1
+        searchM.append([yearCurr, monthCurr])
+            
+    # create search vector
+    search = []
+    for item in searchM:
+        search.append(str(item[0]) + "-" + str(item[1]) + "-payment")
+        counter = 0
+        for row in dataPrice:
+            search.append(str(item[0]) + "-" + str(item[1]) + "-" + str(counter))
+            counter += 1
+        search.append(str(item[0]) + "-" + str(item[1]) + "-balance")
+
+    # search for columns in header of dataU
+    searchColumn = []
+    for itemS in search:
+        counter = 0
+        for itemU in dataU[0]:
+            if itemS == itemU:
+                searchColumn.append(counter)
+            counter += 1
+
+    # loop throuch user database
+    # inactive users are always ignored
+    # active users are always added
+    # auto is computed based on search vector
+    nameList= [[0 for x in range(0)] for x in range(0)]
+    for row in dataU:
+        if row[3] == "active":
+            nameList.append([row[0], row[1]])
+        elif row[3] == "auto":
+            for column in searchColumn:
+                if row[column] != "":
+                    nameList.append([row[0], row[1]])
+                    break
+
+
+    # sort by id
+    nameList= helper.sort_table_low(nameList, [0,1])
+
+    return nameList

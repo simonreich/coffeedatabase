@@ -22,11 +22,16 @@ This file is part of coffeedatabase.
 
 # file name for price information
 global filePrice
-filePrice="preise.cvs"
+filePrice="price.csv"
 
 # file name for user database
 global fileUser
-fileUser="user.cvs"
+fileUser="user.csv"
+
+# how many months of being inactive is acceptable to be still on
+# the final lsit
+global userInactiveMonth
+userInactiveMonth = 6
 
 
 ######################################################
@@ -88,17 +93,23 @@ def main(argv=None):
         elif(arg == "--payment2userdatabase" or
                 arg == "-p2u" or
                 arg == "p2u"):
-            payment.payment2userdatabase(fileUser)
+            payment.payment2userdatabase(fileUser, filePrice)
 
         elif(arg == "--useradd" or
                 arg == "-ua" or
                 arg == "ua"):
-            user.useradd(fileUser)
+            user.userAdd(fileUser)
+
+        elif(arg == "--userlist" or
+                arg == "-ul" or
+                arg == "ul"):
+            user.userList(fileUser, filePrice, userInactiveMonth)
+            userInactiveMonth
 
         elif(arg == "--userstatus" or
                 arg == "-us" or
                 arg == "us"):
-            user.userstatus(fileUser)
+            user.userStatus(fileUser)
 
         elif(len(sys.argv) == 1):
             printHelp(sys.argv[0])

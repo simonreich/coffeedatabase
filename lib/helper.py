@@ -55,6 +55,10 @@ def fileOpen(fileName, header=False):
         fileName: Name of file to be opened
     """
     data = [[0 for x in range(0)] for x in range(0)]
+    
+    if not os.path.exists(fileName):
+        print("File " + fileName + " not found.")
+        raise
 
     try:
         f = open(fileName, 'rt')
@@ -156,14 +160,14 @@ def autocompletion(namelist):
     return inputText
 
 
-def userdatabaseCreatemonth(fileUser, year, month):
+def userdatabaseCreatemonth(fileUser, filePrice, year, month):
     """ searches for entry in user database and creates year-month, quadruple if not existant
         fileName: file name as string
         year: year to create
         month: month to create
     """
 
-    filePrice = year + "/" + month + "/price.csv"
+    filePrice = year + "/" + month + "/" + filePrice
     dataPrice = fileOpen(filePrice)
     dataU = fileOpen(fileUser, True)
 

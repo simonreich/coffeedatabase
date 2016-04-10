@@ -18,7 +18,6 @@ This file is part of coffeedatabase.
 
 
 # system
-import readline
 import datetime
 import os.path
 
@@ -82,7 +81,7 @@ def makePayment(fileUser):
     return 0
 
 
-def payment2userdatabase(fileUser, filePayment="",):
+def payment2userdatabase(fileUser, filePrice, filePayment="",):
     """ Transfers a list of payments into the user database
         fileUser: file name as string 
         filePayment: file name as string 
@@ -97,7 +96,7 @@ def payment2userdatabase(fileUser, filePayment="",):
         filePayment = year + "/" + month + "/" + "payment.csv"
 
     # check if we need to create entries in user database
-    helper.userdatabaseCreatemonth(fileUser, year, month)
+    helper.userdatabaseCreatemonth(fileUser, filePrice, year, month)
 
     dataP = helper.fileOpen(filePayment)
     dataU = helper.fileOpen(fileUser, True)
