@@ -123,7 +123,6 @@ def userList(fileUser, filePrice, userInactiveMonth):
     year = now.strftime("%Y")
     month = now.strftime("%m")
 
-    filePrice = year + "/" + month + "/" + filePrice
     dataPrice = helper.fileOpen(filePrice)
     dataU = helper.fileOpen(fileUser, True)
 
@@ -163,7 +162,7 @@ def userList(fileUser, filePrice, userInactiveMonth):
     # inactive users are always ignored
     # active users are always added
     # auto is computed based on search vector
-    nameList= [[0 for x in range(0)] for x in range(0)]
+    nameList = [[0 for x in range(0)] for x in range(0)]
     for row in dataU:
         if row[3] == "active":
             nameList.append([row[0], row[1]])
@@ -173,8 +172,11 @@ def userList(fileUser, filePrice, userInactiveMonth):
                     nameList.append([row[0], row[1]])
                     break
 
-
     # sort by id
-    nameList= helper.sort_table_low(nameList, [0,1])
+    counter = 0
+    for row in nameList:
+        nameList[counter][0] = int(nameList[counter][0])
+        counter += 1
+    nameList = helper.sort_table_low(nameList, [0,1])
 
     return nameList

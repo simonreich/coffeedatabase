@@ -45,6 +45,7 @@ import sys
 # coffeedatabase
 from lib import payment
 from lib import user
+from lib import item
 
 # global variables
 global userHeader
@@ -110,6 +111,11 @@ def main(argv=None):
                 arg == "-us" or
                 arg == "us"):
             user.userStatus(fileUser)
+
+        elif(arg == "--markslist" or
+                arg == "-ml" or
+                arg == "ml"):
+            item.makeMarksList(fileUser, filePrice, userInactiveMonth)
 
         elif(len(sys.argv) == 1):
             printHelp(sys.argv[0])

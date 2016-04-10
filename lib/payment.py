@@ -36,11 +36,6 @@ def makePayment(fileUser):
 
     inputText= helper.autocompletion(userName)
 
-    # search for multiple entries
-    matching = [s for s in userName if inputText in s]
-    if len(matching) > 1:
-        raise NameError("Found user input text multiple times in name database. Names found: ", matching)
-
     # input field for paymend
     inputPayment = input("Payment [€]: ")
     try:
@@ -112,7 +107,7 @@ def payment2userdatabase(fileUser, filePrice, filePayment="",):
     dataP.append(["", "", "", "-1", "", ""])
 
     dataP2 = [[0 for x in range(0)] for x in range(0)]
-    rowOld = [0 for x in range(0)]
+    rowOld = []
     counter = 0
     for row in dataP:
         if counter == 0:

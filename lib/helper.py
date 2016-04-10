@@ -157,6 +157,11 @@ def autocompletion(namelist):
         print("Could not find name: " + inputText)
         raise
 
+    # search for multiple entries
+    matching = [s for s in userName if inputText in s]
+    if len(matching) > 1:
+        raise NameError("Found user input text multiple times in name database. Names found: ", matching)
+
     return inputText
 
 
