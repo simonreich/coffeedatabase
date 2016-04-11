@@ -154,3 +154,25 @@ class cbase:
         fileWrite()
 
         return 0
+
+
+    def getRowById (self, rowId):
+        """ Returns a row array for given id (entry in column 0 = row[0])
+            rowId: Row id as int
+        """
+
+        rowId = int(rowId)
+
+        rowFound = False
+        row = []
+        for r in self.data:
+            if int(r[0]) == rowId:
+                rowFound = True
+                row = list(r)
+                break
+
+        if not rowFound:
+            print("The id " + str(rowId) + " could not be found in database.")
+            raise
+
+        return row

@@ -86,7 +86,7 @@ def main(argv=None):
             #userTemp = ["NameTest", "mail@mail.de", "auto"]
             #user.userAdd (userTemp)
 
-            #print(user.getUserById(11))
+            print(user.getRowById(12))
 
             #user.setUser([10, "NameTest", "mail@mail.de", "auto"])
 

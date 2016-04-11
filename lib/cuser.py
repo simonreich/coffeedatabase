@@ -55,28 +55,6 @@ class cuser(cbase.cbase):
         return 0
 
 
-    def getUserById (self, userId):
-        """ Returns a user array for given user id
-            userId: User id as int
-        """
-
-        userId = int(userId)
-
-        userFound = False
-        user = []
-        for row in self.data:
-            if int(row[0]) == userId:
-                userFound = True
-                user = list(row)
-                break
-
-        if not userFound:
-            print("The id " + str(userId) + " could not be found in user database.")
-            raise
-
-        return user
-
-
     def setUser (self, user):
         """ Sets variables of existing user
             user: User as array ["Name", "Mail", "status:active, inactive, auto"]
