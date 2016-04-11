@@ -1,3 +1,28 @@
+# -*- coding: utf-8 -*-
+"""
+This file is part of coffeedatabase.
+
+    coffeedatabase is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    coffeedatabase is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with coffeedatabase..  If not, see <http://www.gnu.org/licenses/>.
+"""
+
+
+# system
+import os.path
+import sys
+import csv
+
+
 class cbase:
     def __init__(self, filename):
         self.data = [[0 for x in range(0)] for x in range(0)]
@@ -8,21 +33,21 @@ class cbase:
         self.fileOpen()
 
 
-    def fileOpen(self)
+    def fileOpen(self):
         """ Opens a cvs file and loads the data into specific variables: data, header, months.
             filename: Name of file to be opened
             header: If set to False, header will be ignored. If set to True, header will be loaded into self.header.
         """
     
-        if not os.path.exists(self.fileName):
-            print("File " + self.fileName + " not found.")
+        if not os.path.exists(self.filename):
+            print("File " + self.filename + " not found.")
             raise
 
         # populate data
         self.data = [[0 for x in range(0)] for x in range(0)]
 
         try:
-            f = open(self.fileName, 'rt')
+            f = open(self.filename, 'rt')
             r = csv.reader(f)
         except OSError as err:
             print("OS error: {0}".format(err))
@@ -54,17 +79,13 @@ class cbase:
             else:
                 self.months.append(["", ""])
 
-
-        # populate filename
-        self.filename = filename
-
         return 0
 
 
     def fileWrite(self):
         """ writes to to a cvs file
         """
-        if filename = "":
+        if self.filename == "":
             print("No filename given.")
             raise
 
@@ -120,7 +141,7 @@ class cbase:
 
         # parse results
         if searchCount > 1:
-            print("Multiple Entries found for " + searchVector + ". Your database in " + self.filename " is corrupt.")
+            print("Multiple Entries found for " + searchVector + ". Your database in " + self.filename + " is corrupt.")
             raise
         elif searchCount == 1:
             return 0

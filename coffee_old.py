@@ -43,7 +43,15 @@ userInactiveMonth = 6
 import sys
 
 # coffeedatabase
-from lib import cuser
+from lib import payment
+from lib import user
+from lib import item
+
+# global variables
+global userHeader
+userHeader = ["id", "name", "mail", "status"]
+global userHeaderLen
+userHeaderLen = len(userHeader)
 
 
 # print help
@@ -78,17 +86,36 @@ def main(argv=None):
                 arg == "?"):
             printHelp(sys.argv[0])
 
+        elif(arg == "--payment" or
+                arg == "-p" or
+                arg == "p"):
+            payment.makePayment(fileUser)
+
+        elif(arg == "--payment2userdatabase" or
+                arg == "-p2u" or
+                arg == "p2u"):
+            payment.payment2userdatabase(fileUser, filePrice)
+
         elif(arg == "--useradd" or
                 arg == "-ua" or
                 arg == "ua"):
-            user = cuser.cuser(fileUser)
+            user.userAdd(fileUser)
 
-            #userTemp = ["NameTest", "mail@mail.de", "auto"]
-            #user.userAdd (userTemp)
+        elif(arg == "--userlist" or
+                arg == "-ul" or
+                arg == "ul"):
+            user.userList(fileUser, filePrice, userInactiveMonth)
+            userInactiveMonth
 
-            #print(user.getUserById(11))
+        elif(arg == "--userstatus" or
+                arg == "-us" or
+                arg == "us"):
+            user.userStatus(fileUser)
 
-            #user.setUser([10, "NameTest", "mail@mail.de", "auto"])
+        elif(arg == "--markslist" or
+                arg == "-ml" or
+                arg == "ml"):
+            item.makeMarksList(fileUser, filePrice, userInactiveMonth)
 
         elif(len(sys.argv) == 1):
             printHelp(sys.argv[0])
