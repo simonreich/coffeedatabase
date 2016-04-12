@@ -43,10 +43,6 @@ class cuser(cbase.cbase):
                 print("The name " + user[0] + " already exists in user databse.")
                 raise
 
-        # standard mail address
-        if user[2] == "":
-            user[2] = "institut@gwdg.de"
-
         user.insert(0, highid+1)
 
         self.data.append(user)
@@ -87,3 +83,33 @@ class cuser(cbase.cbase):
 
         return 0
 
+
+    def getNamelist (self):
+        """ Returns array of all names in database.
+        """
+
+        return self.column(1)
+
+
+    def getIdByName (self, name)
+        """ Returns id as int to name.
+            name: Name as string.
+        """
+
+        name = str(name)
+
+        nameFound = False
+        for row in self.data
+            if row[1] == name:
+                nameFound = True
+
+        if not nameFound:
+            print("Could not find name: " + name)
+            raise
+
+        # search for multiple entries
+        matching = [s for s in self.getNamelist() if name in s]
+        if len(matching) > 1:
+            raise NameError("Found user input text multiple times in name database. Names found: ", matching)
+
+        return row[0]

@@ -176,3 +176,10 @@ class cbase:
             raise
 
         return row
+
+
+    def column(i):
+        """ returns a column data matrix
+            i: column to extract
+        """
+        return [row[i] for row in self.data]

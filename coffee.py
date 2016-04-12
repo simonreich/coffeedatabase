@@ -44,6 +44,7 @@ import sys
 
 # coffeedatabase
 from lib import cuser
+from lib import ckeyboard
 
 
 # print help
@@ -82,11 +83,14 @@ def main(argv=None):
                 arg == "-ua" or
                 arg == "ua"):
             user = cuser.cuser(fileUser)
+            keyboard = ckeyboard.ckeyboard(user)
+
+            keyboard.userAdd(user)
 
             #userTemp = ["NameTest", "mail@mail.de", "auto"]
             #user.userAdd (userTemp)
 
-            print(user.getRowById(12))
+            #print(user.getRowById(12))
 
             #user.setUser([10, "NameTest", "mail@mail.de", "auto"])
 
