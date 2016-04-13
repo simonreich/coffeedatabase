@@ -63,13 +63,31 @@ class ckeyboard:
 
         counter = 0
         for description in valueDescription:
-            if not valueStandard[counter] == "":
+            if description.lower() == "status":
+                # display special user input field
+                print("New status:")
+                print("1 - active")
+                print("2 - auto")
+                print("3 - inactive")
                 textInput = input(str(description) + " [" + valueStandard[counter] + "]: ")
+
+                if textInput == "1" or textInput == "active":
+                    textInput= "active"
+                elif textInput == "2" or textInput == "auto":
+                    textInput= "auto"
+                elif textInput == "3" or textInput == "inactive":
+                    textInput= "inactive"
+                else:
+                    print("The input " + str(textInput) + " was not understood. Please use 1, 2, or 3, active, auto, or inactive.")
+                    raise
             else:
-                textInput = input(str(description) + ": ")
-            if not textInput == "":
-                valueStandard[counter] = textInput
-            counter += 1
+                if not valueStandard[counter] == "":
+                    textInput = input(str(description) + " [" + valueStandard[counter] + "]: ")
+                else:
+                    textInput = input(str(description) + ": ")
+                if not textInput == "":
+                    valueStandard[counter] = textInput
+                counter += 1
 
         return valueStandard
 
@@ -98,7 +116,9 @@ class ckeyboard:
         readline.set_completer(completer.complete)
         readline.parse_and_bind('tab: complete')
 
+        print("Search in user database:")
         inputText = input("Name: ")
+        user1 = self.user.getUserByName(inputText)
 
         return self.user.getUserByName(inputText)
 
@@ -111,9 +131,10 @@ class ckeyboard:
         user = self.getUserByTextname()
 
         # remove id
-        print (user)
+        userId = user[0]
         del user[0]
 
+        print("")
         userDescription = ["Name", "Mail", "Status"]
         inputUser = self.inputStandard(userDescription, user)
 

@@ -30,7 +30,7 @@ class cuser(cbase.cbase):
             print("The given user array has wrong format ([\"Name\", \"Mail\", \"status:active, inactive, auto\"]): ", user)
             raise
 
-        if not user[2] == "active" and not user[2] == "inactive" and not user[2] == "auto":
+        if not str(user[2]) == "active" and not str(user[2]) == "inactive" and not str(user[2]) == "auto":
             print("The given user array has wrong format ([\"Name\", \"Mail\", \"status:active, inactive, auto\"]): ", user)
             raise
     
@@ -40,7 +40,7 @@ class cuser(cbase.cbase):
             if int(row[0]) > highid:
                 highid = int(row[0])
             if row[1] == user[0]:
-                print("The name " + user[0] + " already exists in user databse.")
+                print("The name " + str(user[0]) + " already exists in user databse: ", row)
                 raise
 
         user.insert(0, highid+1)
@@ -91,29 +91,6 @@ class cuser(cbase.cbase):
         return self.column(1)
 
 
-    def getIdByNamedeletethisfunction (self, name):
-        """ Returns id as int to name.
-            name: Name as string.
-        """
-
-        name = str(name)
-
-        nameFound = False
-        for row in self.data:
-            if row[1] == name:
-                nameFound = True
-
-        if not nameFound:
-            print("Could not find name: " + name)
-            raise
-
-        # search for multiple entries
-        matching = [s for s in self.getNamelist() if name in s]
-        if len(matching) > 1:
-            raise NameError("Found user input text multiple times in name database. Names found: ", matching)
-
-        return row[0]
-
 
     def getUserByName(self, name):
         """ Returns user as array ["Name", "Mail", "status:active, inactive, auto"]
@@ -126,6 +103,8 @@ class cuser(cbase.cbase):
         for row in self.data:
             if row[1] == name:
                 nameFound = True
+                break
+
 
         if not nameFound:
             print("Could not find name: " + name)
