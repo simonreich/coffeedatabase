@@ -91,7 +91,7 @@ class cuser(cbase.cbase):
         return self.column(1)
 
 
-    def getIdByName (self, name)
+    def getIdByNamedeletethisfunction (self, name):
         """ Returns id as int to name.
             name: Name as string.
         """
@@ -99,7 +99,7 @@ class cuser(cbase.cbase):
         name = str(name)
 
         nameFound = False
-        for row in self.data
+        for row in self.data:
             if row[1] == name:
                 nameFound = True
 
@@ -113,3 +113,27 @@ class cuser(cbase.cbase):
             raise NameError("Found user input text multiple times in name database. Names found: ", matching)
 
         return row[0]
+
+
+    def getUserByName(self, name):
+        """ Returns user as array ["Name", "Mail", "status:active, inactive, auto"]
+            name: Name as string.
+        """
+
+        name = str(name)
+
+        nameFound = False
+        for row in self.data:
+            if row[1] == name:
+                nameFound = True
+
+        if not nameFound:
+            print("Could not find name: " + name)
+            raise
+
+        # search for multiple entries
+        matching = [s for s in self.getNamelist() if name in s]
+        if len(matching) > 1:
+            raise NameError("Found user input text multiple times in name database. Names found: ", matching)
+
+        return row

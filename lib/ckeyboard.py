@@ -16,7 +16,10 @@ This file is part of coffeedatabase.
     along with coffeedatabase..  If not, see <http://www.gnu.org/licenses/>.
 """
 
+# system
+import readline
 
+# coffeedatabase
 from lib import cuser
 
 
@@ -88,16 +91,16 @@ class ckeyboard:
         return 0
 
 
-    def userIdByName(self)
+    def getUserByTextname(self):
         """ Displays a name field and returns id of user.
         """
-        completer = MyCompleter(self.user.getNamelist)
+        completer = MyCompleter(self.user.getNamelist())
         readline.set_completer(completer.complete)
         readline.parse_and_bind('tab: complete')
 
         inputText = input("Name: ")
 
-        return self.user.getIdByName(inputText)
+        return self.user.getUserByName(inputText)
 
 
 
@@ -105,17 +108,19 @@ class ckeyboard:
         """ Displays user information and allows to change them.
         """
 
-        userId = self.userIdByName()
-        user = self.user.getUserById(userId)
+        user = self.getUserByTextname()
 
-        # remove id and name
-        user.del(0)
-        user.del(0)
+        # remove id
+        print (user)
+        del user[0]
 
-        userDescription = ["Mail", "Status"]
-
+        userDescription = ["Name", "Mail", "Status"]
         inputUser = self.inputStandard(userDescription, user)
 
-        self.user.userAdd(inputUser)
+        # add user id
+        inputUser.insert(0, userId)
+
+        # save in database
+        self.user.setUser(inputUser)
 
         return 0

@@ -84,15 +84,14 @@ def main(argv=None):
                 arg == "ua"):
             user = cuser.cuser(fileUser)
             keyboard = ckeyboard.ckeyboard(user)
+            keyboard.userAdd()
 
-            keyboard.userAdd(user)
-
-            #userTemp = ["NameTest", "mail@mail.de", "auto"]
-            #user.userAdd (userTemp)
-
-            #print(user.getRowById(12))
-
-            #user.setUser([10, "NameTest", "mail@mail.de", "auto"])
+        elif(arg == "--userchange" or
+                arg == "-uc" or
+                arg == "uc"):
+            user = cuser.cuser(fileUser)
+            keyboard = ckeyboard.ckeyboard(user)
+            keyboard.userChangeInfo()
 
         elif(len(sys.argv) == 1):
             printHelp(sys.argv[0])
