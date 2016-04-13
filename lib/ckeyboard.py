@@ -118,7 +118,6 @@ class ckeyboard:
 
         print("Search in user database:")
         inputText = input("Name: ")
-        user1 = self.user.getUserByName(inputText)
 
         return self.user.getUserByName(inputText)
 
