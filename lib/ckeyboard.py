@@ -18,6 +18,7 @@ This file is part of coffeedatabase.
 
 # system
 import readline
+import datetime
 
 # coffeedatabase
 from lib import cuser
@@ -47,8 +48,9 @@ class MyCompleter(object):  # Custom completer
 
 
 class ckeyboard:
-    def __init__(self, user):
+    def __init__(self, user, payment):
         self.user = user
+        self.payment = payment
 
 
     def inputStandard(self, valueDescription, valueStandard):
@@ -72,11 +74,11 @@ class ckeyboard:
                 textInput = input(str(description) + " [" + valueStandard[counter] + "]: ")
 
                 if textInput == "1" or textInput == "active":
-                    textInput= "active"
+                    valueStandard[counter] = "active"
                 elif textInput == "2" or textInput == "auto":
-                    textInput= "auto"
+                    valueStandard[counter] = "auto"
                 elif textInput == "3" or textInput == "inactive":
-                    textInput= "inactive"
+                    valueStandard[counter] = "inactive"
                 else:
                     print("The input " + str(textInput) + " was not understood. Please use 1, 2, or 3, active, auto, or inactive.")
                     raise
@@ -87,14 +89,13 @@ class ckeyboard:
                     textInput = input(str(description) + ": ")
                 if not textInput == "":
                     valueStandard[counter] = textInput
-                counter += 1
+            counter += 1
 
         return valueStandard
 
 
     def userAdd(self):
         """ Adds a user to the user database
-            user: Class cuser object. User is added to this database
         """
 
         userDescription = ["Name", "Mail"]
@@ -122,7 +123,6 @@ class ckeyboard:
         return self.user.getUserByName(inputText)
 
 
-
     def userChangeInfo(self):
         """ Displays user information and allows to change them.
         """
@@ -142,5 +142,33 @@ class ckeyboard:
 
         # save in database
         self.user.setUser(inputUser)
+
+        return 0
+
+
+    def paymentAdd(self):
+        """ Adds a payment to the user database
+        """
+
+        user = self.getUserByTextname()
+
+        # create dates
+        now = datetime.datetime.now()
+        year = now.strftime("%Y")
+        month = now.strftime("%m")
+        day = now.strftime("%d")
+
+        payment1 = [user[0], int(year), int(month), int(day)]
+
+        print("")
+        userDescription = ["Payment"]
+        payment2 = [""]
+        inputUser = self.inputStandard(userDescription, payment2)
+
+        # fill payment
+        payment = payment1 + payment2
+
+        # save in database
+        self.payment.paymentAdd(payment)
 
         return 0

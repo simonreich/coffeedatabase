@@ -88,8 +88,7 @@ class cuser(cbase.cbase):
         """ Returns array of all names in database.
         """
 
-        return self.column(1)
-
+        return self.getColumn(1)
 
 
     def getUserByName(self, name):
@@ -105,14 +104,23 @@ class cuser(cbase.cbase):
                 nameFound = True
                 break
 
-
         if not nameFound:
-            print("Could not find name: " + name)
+            print("Could not find name: " + str(name))
             raise
 
         # search for multiple entries
         matching = [s for s in self.getNamelist() if name in s]
         if len(matching) > 1:
-            raise NameError("Found user input text multiple times in name database. Names found: ", matching)
+            raise NameError("Found user " + str(name) + " text multiple times in name database. Names found: ", matching)
 
         return row
+
+
+    def getUserById(self, userid):
+        """ Returns user as array ["Name", "Mail", "status:active, inactive, auto"]
+            userid: Id as int.
+        """
+
+        userid = int(userid)
+
+        return self.getRowById(userid)

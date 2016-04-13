@@ -178,7 +178,7 @@ class cbase:
         return row
 
 
-    def column(self, i):
+    def getColumn(self, i):
         """ returns a column data matrix
             i: column to extract
         """
