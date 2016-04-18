@@ -32,6 +32,10 @@ fileUser="user.csv"
 global filePayment
 filePayment="payment.csv"
 
+# file name for item database
+global fileItem
+fileItem="item.csv"
+
 # how many months of being inactive is acceptable to be still on
 # the final lsit
 global userInactiveMonth
@@ -50,6 +54,7 @@ import sys
 from lib import cuser
 from lib import ckeyboard
 from lib import cpayment
+from lib import citem
 
 
 # print help
@@ -105,6 +110,13 @@ def main(argv=None):
             payment = cpayment.cpayment(filePayment, user)
             keyboard = ckeyboard.ckeyboard(user, payment)
             keyboard.paymentAdd()
+
+        elif(arg == "--itemadd" or
+                arg == "-ia" or
+                arg == "ia"):
+            user = cuser.cuser(fileUser)
+            keyboard = ckeyboard.ckeyboard(user)
+            keyboard.userAdd()
 
         elif(len(sys.argv) == 1):
             printHelp(sys.argv[0])
