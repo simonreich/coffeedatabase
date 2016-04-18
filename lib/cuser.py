@@ -40,7 +40,7 @@ class cuser(cbase.cbase):
             if int(row[0]) > highid:
                 highid = int(row[0])
             if row[1] == user[0]:
-                print("The name " + str(user[0]) + " already exists in user databse: ", row)
+                print("The name " + str(user[0]) + " already exists in user database: ", row)
                 raise
 
         user.insert(0, highid+1)

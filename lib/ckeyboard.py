@@ -57,7 +57,7 @@ class ckeyboard:
         config.sections()
         config.read('config.ini')
 
-        if not 'FILENAME' in config or not 'LIST' in config:
+        if not ('FILENAME' in config) or not ('LIST' in config):
             print("Broken config file \"config.ini\".")
             raise
 
@@ -73,6 +73,7 @@ class ckeyboard:
 
         self.user = cuser.cuser(self.fileUser)
         self.payment = cpayment.cpayment(self.filePayment, self.user)
+        self.item = citem.citem(self.fileItem)
 
 
     def inputStandard(self, valueDescription, valueStandard):
@@ -122,7 +123,6 @@ class ckeyboard:
 
         userDescription = ["Name", "Mail"]
         userStandard = ["", "institut@gwdg.de"]
-
 
         inputUser = self.inputStandard(userDescription, userStandard)
         inputUser.append("auto")
@@ -192,5 +192,19 @@ class ckeyboard:
 
         # save in database
         self.payment.paymentAdd(payment)
+
+        return 0
+
+
+    def itemAdd(self):
+        """ Adds a user to the user database
+        """
+
+        itemDescription = ["Name", "Unit"]
+        itemStandard = ["Coffee", "per cup"]
+
+        inputItem = self.inputStandard(itemDescription, itemStandard)
+
+        self.item.itemAdd(inputItem)
 
         return 0
