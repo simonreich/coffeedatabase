@@ -19,9 +19,12 @@ This file is part of coffeedatabase.
 # system
 import readline
 import datetime
+import configparser
 
 # coffeedatabase
 from lib import cuser
+from lib import cpayment
+from lib import citem
 
 
 # Completer Class
@@ -48,9 +51,28 @@ class MyCompleter(object):  # Custom completer
 
 
 class ckeyboard:
-    def __init__(self, user, payment):
-        self.user = user
-        self.payment = payment
+    def __init__(self):
+        # First, load the config
+        config = configparser.ConfigParser()
+        config.sections()
+        config.read('config.ini')
+
+        if not 'FILENAME' in config or not 'LIST' in config:
+            print("Broken config file \"config.ini\".")
+            raise
+
+        self.fileUser = config['FILENAME']['fileUser']
+        self.filePayment = config['FILENAME']['filePayment']
+        self.fileItem = config['FILENAME']['fileItem']
+
+        if (self.fileUser == "") or \
+                (self.filePayment == "") or \
+                (self.fileItem == ""):
+            print("Broken config file \"config.ini\".")
+            raise
+
+        self.user = cuser.cuser(self.fileUser)
+        self.payment = cpayment.cpayment(self.filePayment, self.user)
 
 
     def inputStandard(self, valueDescription, valueStandard):

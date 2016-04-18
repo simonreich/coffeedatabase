@@ -92,31 +92,26 @@ def main(argv=None):
         elif(arg == "--useradd" or
                 arg == "-ua" or
                 arg == "ua"):
-            user = cuser.cuser(fileUser)
-            keyboard = ckeyboard.ckeyboard(user)
+            keyboard = ckeyboard.ckeyboard()
             keyboard.userAdd()
 
         elif(arg == "--userchange" or
                 arg == "-uc" or
                 arg == "uc"):
-            user = cuser.cuser(fileUser)
-            keyboard = ckeyboard.ckeyboard(user)
+            keyboard = ckeyboard.ckeyboard()
             keyboard.userChangeInfo()
 
         elif(arg == "--paymentadd" or
                 arg == "-pa" or
                 arg == "pa"):
-            user = cuser.cuser(fileUser)
-            payment = cpayment.cpayment(filePayment, user)
-            keyboard = ckeyboard.ckeyboard(user, payment)
+            keyboard = ckeyboard.ckeyboard()
             keyboard.paymentAdd()
 
         elif(arg == "--itemadd" or
                 arg == "-ia" or
                 arg == "ia"):
-            user = cuser.cuser(fileUser)
-            keyboard = ckeyboard.ckeyboard(user)
-            keyboard.userAdd()
+            keyboard = ckeyboard.ckeyboard()
+            keyboard.itemAdd()
 
         elif(len(sys.argv) == 1):
             printHelp(sys.argv[0])
