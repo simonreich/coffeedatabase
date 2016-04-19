@@ -178,8 +178,35 @@ class cbase:
         return row
 
 
-    def getColumn(self, i):
-        """ returns a column data matrix
-            i: column to extract
+    def getRowByName(self, name, column):
+        """ Returns row as array
+            name: Name as string.
+            column: Column as int
         """
-        return [row[i] for row in self.data]
+
+        name = str(name)
+        column = int(column)
+
+        nameFound = False
+        for row in self.data:
+            if row[column] == name:
+                nameFound = True
+                break
+
+        if not nameFound:
+            print("Could not find name: " + str(name) + " in column: " + str(column))
+            raise
+
+        # search for multiple entries
+        matching = [s for s in self.getColumn(column) if name in s]
+        if len(matching) > 1:
+            raise NameError("Found user " + str(name) + " text multiple times in name database. Names found: ", matching)
+
+        return row
+
+
+    def getColumn(self, column):
+        """ returns a column data matrix
+            column: column as int
+        """
+        return [row[column] for row in self.data]

@@ -35,7 +35,7 @@ class cuser(cbase.cbase):
             raise
     
         # check if name exists and search for highest id
-        highid = 0
+        highid = -1
         for row in self.data:
             if int(row[0]) > highid:
                 highid = int(row[0])
@@ -89,38 +89,3 @@ class cuser(cbase.cbase):
         """
 
         return self.getColumn(1)
-
-
-    def getUserByName(self, name):
-        """ Returns user as array ["Name", "Mail", "status:active, inactive, auto"]
-            name: Name as string.
-        """
-
-        name = str(name)
-
-        nameFound = False
-        for row in self.data:
-            if row[1] == name:
-                nameFound = True
-                break
-
-        if not nameFound:
-            print("Could not find name: " + str(name))
-            raise
-
-        # search for multiple entries
-        matching = [s for s in self.getNamelist() if name in s]
-        if len(matching) > 1:
-            raise NameError("Found user " + str(name) + " text multiple times in name database. Names found: ", matching)
-
-        return row
-
-
-    def getUserById(self, userid):
-        """ Returns user as array ["Name", "Mail", "status:active, inactive, auto"]
-            userid: Id as int.
-        """
-
-        userid = int(userid)
-
-        return self.getRowById(userid)

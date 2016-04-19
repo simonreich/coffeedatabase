@@ -22,8 +22,8 @@ from lib import cbase
 
 
 class citem(cbase.cbase):
-    def __init__(self, filename, user):
-        super().__init__(filename)
+    #def __init__(self, filename, item):
+     #   super().__init__(filename)
 
        # self.dataMarks = []
        # for row in self.data:
@@ -31,7 +31,7 @@ class citem(cbase.cbase):
 
 
     def itemAdd(self, item):
-        """ Adds a payment to the payment database
+        """ Adds an item to the item database
             item: Item as array ["Name", "Unit"].
         """
 
@@ -43,7 +43,7 @@ class citem(cbase.cbase):
         item[1] = str(item[1])
 
         # check if name exists and search for highest id
-        highid = 0
+        highid = -1
         for row in self.data:
             if int(row[0]) > highid:
                 highid = int(row[0])
@@ -54,6 +54,37 @@ class citem(cbase.cbase):
         item.insert(0, highid+1)
 
         self.data.append(item)
+        self.fileWrite()
+
+        return 0
+
+
+    def setItem (self, item):
+        """ Sets variables of existing item
+            item: Item as array ["Id", "Name", "Unit"]
+        """
+
+        if not len(item) == 3:
+            print("The given item array has wrong format ([\"Id\", \"Name\", \"Unit\"]): ", item)
+            raise
+
+        item[0] = int(item[0])
+        item[1] = str(item[1])
+        item[2] = str(item[2])
+
+        itemFound = False
+        counter = 0
+        for row in self.data:
+            if int(row[0]) == item[0]:
+                itemFound = True
+                self.data[counter] = item
+                break
+            counter += 1
+
+        if not itemFound:
+            print("The id " + str(item[0]) + " could not be found in item database.")
+            raise
+
         self.fileWrite()
 
         return 0

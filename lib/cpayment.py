@@ -42,7 +42,7 @@ class cpayment(cbase.cbase):
             raise
 
         # check if id exists
-        user = self.user.getUserById(payment[0])
+        user = self.user.getRowById(payment[0])
 
         # quick sanity check for year
         if not payment[1] > 2000:

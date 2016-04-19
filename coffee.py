@@ -113,6 +113,12 @@ def main(argv=None):
             keyboard = ckeyboard.ckeyboard()
             keyboard.itemAdd()
 
+        elif(arg == "--itemchange" or
+                arg == "-ic" or
+                arg == "ic"):
+            keyboard = ckeyboard.ckeyboard()
+            keyboard.itemChangeInfo()
+
         elif(len(sys.argv) == 1):
             printHelp(sys.argv[0])
 

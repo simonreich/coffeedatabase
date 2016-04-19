@@ -132,24 +132,11 @@ class ckeyboard:
         return 0
 
 
-    def getUserByTextname(self):
-        """ Displays a name field and returns id of user.
-        """
-        completer = MyCompleter(self.user.getNamelist())
-        readline.set_completer(completer.complete)
-        readline.parse_and_bind('tab: complete')
-
-        print("Search in user database:")
-        inputText = input("Name: ")
-
-        return self.user.getUserByName(inputText)
-
-
     def userChangeInfo(self):
         """ Displays user information and allows to change them.
         """
 
-        user = self.getUserByTextname()
+        user = self.getRowByTextname(self.user.getNamelist(), self.user)
 
         # remove id
         userId = user[0]
@@ -208,3 +195,41 @@ class ckeyboard:
         self.item.itemAdd(inputItem)
 
         return 0
+
+
+    def itemChangeInfo(self):
+        """ Displays item information and allows to change them.
+        """
+
+        item = self.getRowByTextname(self.item.getColumn(1), self.item)
+
+        # remove id
+        itemId = item[0]
+        del item[0]
+
+        print("")
+        itemDescription = ["Name", "Unit"]
+        inputItem = self.inputStandard(itemDescription, item)
+
+        # add item id
+        inputItem.insert(0, itemId)
+
+        # save in database
+        self.item.setItem(inputItem)
+
+        return 0
+
+
+    def getRowByTextname(self, array, database):
+        """ Displays a name field and returns row.
+        array: Array used for auto completion in text input field.
+        database: Reference to database class, e.g. self.item, self.user, ...
+        """
+        completer = MyCompleter(array)
+        readline.set_completer(completer.complete)
+        readline.parse_and_bind('tab: complete')
+
+        print("Search in item database:")
+        inputText = input("Name: ")
+
+        return database.getRowByName(inputText, 1)
