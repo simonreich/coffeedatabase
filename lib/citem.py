@@ -27,7 +27,6 @@ class citem(cbase.cbase):
 
         # this will hold an array of marks classes
         self.marks = []
-
         for itemId in self.getColumn(0):
             fileMarks2 = fileMarks + str(itemId) + ".csv"
             self.marks.append(cmarks.cmarks(fileMarks2, user))

@@ -212,15 +212,10 @@ class cbase:
         return [row[column] for row in self.data]
 
 
-    def createDatabase(self, filename, array):
-        """ creates empty database file, if it does not exist.
-        array: Array to initialize the database header with.
+    def getDatabinMonth(self):
+        """ bins the user data into months
+            Example
+            databinHeader = [          [2015, 12], [2016, 1], [2016, 2]]
+            databinData   = [[userId1, 5,          0,         6],
+                             [userId2, 9,          8,         8]]
         """
-
-        if os.path.exists(filename):
-            return 0
-
-        self.header = list(array)
-        self.fileWrite ()
-
-        return 0
