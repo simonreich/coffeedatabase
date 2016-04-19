@@ -26,6 +26,7 @@ from lib import cuser
 from lib import cpayment
 from lib import citem
 from lib import cmarks
+from lib import cdatabase
 
 
 # Completer Class
@@ -65,24 +66,23 @@ class ckeyboard:
         self.fileUser = config['FILENAME']['fileUser']
         self.filePayment = config['FILENAME']['filePayment']
         self.fileItem = config['FILENAME']['fileItem']
+        self.fileMarks = config['FILENAME']['fileMarks']
 
         if (self.fileUser == "") or \
                 (self.filePayment == "") or \
+                (self.fileMarks == "") or \
                 (self.fileItem == ""):
             print("Broken config file \"config.ini\".")
             raise
 
         # create databases, if they do not exist.
-        # TODO: this is a bad place as the ckeyboard class is supposed to be
-        # the input interface and should not offer any internal functionality.
-        # This code should be moved somewhere more appropriate.
-        if not os.path.exists(self.fileUser):
+        database = cdatabase.cdatabase(self.fileUser, self.filePayment, self.fileItem, self.fileMarks)
 
 
         self.user = cuser.cuser(self.fileUser)
         self.payment = cpayment.cpayment(self.filePayment, self.user)
         self.item = citem.citem(self.fileItem)
-        self.marks = cmarks.cmarks("test.csv", self.user)
+        #self.marks = cmarks.cmarks("test.csv", self.user)
 
 
     def inputStandard(self, valueDescription, valueStandard):

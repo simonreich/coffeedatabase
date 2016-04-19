@@ -20,26 +20,6 @@ This file is part of coffeedatabase.
 ######################################################
 
 
-# file name for price information
-global filePrice
-filePrice="price.csv"
-
-# file name for user database
-global fileUser
-fileUser="user.csv"
-
-# file name for payment database
-global filePayment
-filePayment="payment.csv"
-
-# file name for item database
-global fileItem
-fileItem="item.csv"
-
-# how many months of being inactive is acceptable to be still on
-# the final lsit
-global userInactiveMonth
-userInactiveMonth = 6
 
 
 ######################################################
@@ -51,10 +31,7 @@ userInactiveMonth = 6
 import sys
 
 # coffeedatabase
-from lib import cuser
 from lib import ckeyboard
-from lib import cpayment
-from lib import citem
 
 
 # print help
@@ -118,6 +95,12 @@ def main(argv=None):
                 arg == "ic"):
             keyboard = ckeyboard.ckeyboard()
             keyboard.itemChangeInfo()
+
+        elif(arg == "--markadd" or
+                arg == "-ma" or
+                arg == "ma"):
+            keyboard = ckeyboard.ckeyboard()
+            keyboard.marksAdd()
 
         elif(len(sys.argv) == 1):
             printHelp(sys.argv[0])
