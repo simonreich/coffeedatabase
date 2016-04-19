@@ -20,44 +20,44 @@ This file is part of coffeedatabase.
 from lib import cbase
 
 
-class cpayment(cbase.cbase):
+class cmarks(cbase.cbase):
     def __init__(self, filename, user):
         super().__init__(filename)
         self.user = user
 
 
-    def paymentAdd(self, payment):
-        """ Adds a payment to the payment database
-            payment: Payment as array ["Id", "Year", "Month", "Day", "Payment"].
+    def marksAdd(self, marks):
+        """ Adds marks to the marks database
+            marks: Marks as array ["Id", "Year", "Month", "Day", "Marks"].
         """
 
-        if not len(payment) == 5:
-            print("The given payment array has wrong format ([\"Id\", \"Year\", \"Month\", \"Day\", \"Payment\"]): ", payment)
+        if not len(marks) == 5:
+            print("The given marks array has wrong format ([\"Id\", \"Year\", \"Month\", \"Day\", \"Marks\"]): ", marks)
             raise
 
-        payment[0] = int(payment[0])
-        payment[1] = int(payment[1])
-        payment[2] = int(payment[2])
-        payment[3] = int(payment[3])
-        payment[4] = "{:.2f}".format(float(payment[4]))
+        marks[0] = int(marks[0])
+        marks[1] = int(marks[1])
+        marks[2] = int(marks[2])
+        marks[3] = int(marks[3])
+        marks[4] = int(marks[4])
 
         # check if id exists
-        user = self.user.getRowById(payment[0])
+        user = self.user.getRowById(marks[0])
 
         # quick sanity check for year
-        if not payment[1] > 2000:
-            print("Year is not in range", payment)
+        if not marks[1] > 2000:
+            print("Year is not in range", marks)
             raise
         # quick sanity check for month
-        if not payment[2] > 0 or not payment[2] < 13:
-            print("Month is not in range", payment)
+        if not marks[2] > 0 or not marks[2] < 13:
+            print("Month is not in range", marks)
             raise
         # quick sanity check for day
-        if not payment[3] > 0 or not payment[3] < 32:
-            print("Day is not in range", payment)
+        if not marks[3] > 0 or not marks[3] < 32:
+            print("Day is not in range", marks)
             raise
 
-        self.data.append(payment)
+        self.data.append(marks)
         self.fileWrite()
 
         return 0

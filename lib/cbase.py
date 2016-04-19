@@ -212,12 +212,12 @@ class cbase:
         return [row[column] for row in self.data]
 
 
-    def createDatabase(self, array):
+    def createDatabase(self, filename, array):
         """ creates empty database file, if it does not exist.
         array: Array to initialize the database header with.
         """
 
-        if os.path.exists(self.filename):
+        if os.path.exists(filename):
             return 0
 
         self.header = list(array)
