@@ -207,6 +207,20 @@ class cbase:
 
     def getColumn(self, column):
         """ returns a column data matrix
-            column: column as int
+            column: Column as int
         """
         return [row[column] for row in self.data]
+
+
+    def createDatabase(self, array):
+        """ creates empty database file, if it does not exist.
+        array: Array to initialize the database header with.
+        """
+
+        if os.path.exists(self.filename):
+            return 0
+
+        self.header = list(array)
+        self.fileWrite ()
+
+        return 0
