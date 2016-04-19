@@ -18,16 +18,19 @@ This file is part of coffeedatabase.
 
 
 from lib import cbase
-#from lib import cmarks
+from lib import cmarks
 
 
 class citem(cbase.cbase):
-    #def __init__(self, filename, item):
-     #   super().__init__(filename)
+    def __init__(self, fileItem, fileMarks, user):
+        super().__init__(fileItem)
 
-       # self.dataMarks = []
-       # for row in self.data:
-     #       self.dataMarks.append(
+        # this will hold an array of marks classes
+        self.marks = []
+
+        for itemId in self.getColumn(0):
+            fileMarks2 = fileMarks + str(itemId) + ".csv"
+            self.marks.append(cmarks.cmarks(fileMarks2, user))
 
 
     def itemAdd(self, item):

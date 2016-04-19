@@ -78,11 +78,9 @@ class ckeyboard:
         # create databases, if they do not exist.
         database = cdatabase.cdatabase(self.fileUser, self.filePayment, self.fileItem, self.fileMarks)
 
-
         self.user = cuser.cuser(self.fileUser)
         self.payment = cpayment.cpayment(self.filePayment, self.user)
-        self.item = citem.citem(self.fileItem)
-        #self.marks = cmarks.cmarks("test.csv", self.user)
+        self.item = citem.citem(self.fileItem, self.fileMarks, self.user)
 
 
     def inputStandard(self, valueDescription, valueStandard):
