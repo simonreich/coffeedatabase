@@ -53,7 +53,7 @@ class cuser(cbase.cbase):
 
     def setUser (self, user):
         """ Sets variables of existing user
-            user: User as array ["Name", "Mail", "status:active, inactive, auto"]
+            user: User as array ["Id", "Name", "Mail", "status:active, inactive, auto"]
         """
 
         if not len(user) == 4:
