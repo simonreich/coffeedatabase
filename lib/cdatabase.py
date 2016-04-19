@@ -41,11 +41,11 @@ class cdatabase:
         if not os.path.exists(fileItem):
             self.fileWrite(fileItem, ["Id", "Name", "Unit"])
         else:
-            item = citem.citem(fileItem)
-            for itemId in item.getColumn(0):
-                fileMarks = fileMarks + str(itemId) + ".csv"
-                if not os.path.exists(fileMarks):
-                    self.fileWrite(fileMarks, ["Id", "Year", "Month", "Day", "Marks"])
+            itemData = self.fileOpen(fileItem)
+            for row in itemData:
+                fileMarks2 = fileMarks + str(row[0]) + ".csv"
+                if not os.path.exists(fileMarks2):
+                    self.fileWrite(fileMarks2, ["Id", "Year", "Month", "Day", "Marks"])
 
 
     def fileWrite(self, filename, array):
@@ -73,3 +73,37 @@ class cdatabase:
             f.close ()
 
         return 0
+
+
+    def fileOpen(self, filename):
+        """ Opens a cvs file and loads the data into array.
+            filename: Name of file to be opened
+        """
+    
+        if not os.path.exists(filename):
+            print("File " + filename + " not found.")
+            raise
+
+        # populate data
+        data = [[0 for x in range(0)] for x in range(0)]
+
+        try:
+            f = open(filename, 'rt')
+            r = csv.reader(f)
+        except OSError as err:
+            print("OS error: {0}".format(err))
+        except:
+            print("Unexpected error:", sys.exc_info()[0])
+            raise
+        else:
+            counter = 0
+            for row in r:
+                # first row is header
+                if counter > 0:
+                    data.append(row)
+
+                counter += 1
+
+        f.close ()
+
+        return data
