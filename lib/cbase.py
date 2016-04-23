@@ -29,8 +29,10 @@ class cbase:
         self.data = [[0 for x in range(0)] for x in range(0)]
         self.header = []
         self.filename = filename
-        self.databinHeader = [[0 for x in range(0)] for x in range(0)]
-        self.databinData = [[0 for x in range(0)] for x in range(0)]
+        self.dataBinMonthHeader = [[0 for x in range(0)] for x in range(0)]
+        self.dataBinMonth = [[0 for x in range(0)] for x in range(0)]
+        self.dataBinYearHeader = [[0 for x in range(0)] for x in range(0)]
+        self.dataBinYear = []
 
         self.fileOpen()
 
@@ -206,24 +208,24 @@ class cbase:
         return [row[column] for row in self.data]
 
 
-    def getDatabinMonth(self):
+    def getDataBinMonth(self):
         """ bins the user data into months
             Example
-            databinHeader = [          [2015, 12], [2016, 1], [2016, 2]]
-            databinData   = [[userId1, 5,          0,         6],
-                             [userId2, 9,          8,         8]]
+            dataBinMonthHeader = [          [2015, 12], [2016, 1], [2016, 2]]
+            dataBinMonth       = [[userId1, 5,          0,         6],
+                                  [userId2, 9,          8,         8]]
         """
-
         # create dates
         now = datetime.datetime.now()
         year = int(now.strftime("%Y"))
         month = int(now.strftime("%m"))
-        day = int(now.strftime("%d"))
 
-        # first, find oldest date
+        # first, find oldest date and highes user id
         monthOldest = 13
         yearOldest = 2999
+        idMax = 0
         for row in self.data:
+            row[0] = int(row[0])
             row[1] = int(row[1])
             row[2] = int(row[2])
             if row[1] < yearOldest:
@@ -231,9 +233,11 @@ class cbase:
                 monthOldest = row[2]
             elif (row[1] == yearOldest) and (row[2] < monthOldest):
                 monthOldest = row[2]
+            if row[0] > idMax:
+                idMax = row[0]
 
         # create header
-        self.databinHeader = [[0 for x in range(0)] for x in range(0)]
+        self.dataBinMonthHeader = [[0 for x in range(0)] for x in range(0)]
         monthMin = monthOldest
         monthMax = 0
         yearMin = yearOldest
@@ -244,25 +248,61 @@ class cbase:
             else:
                 monthMax = 13
             for iMonth in range(monthMin, monthMax):
-                self.databinHeader.append([iYear, iMonth])
+                self.dataBinMonthHeader.append([iYear, iMonth])
             monthMin = 1
 
         # create empty database to fill with stuff
-        idMax = 13
-        self.databinData = [[0 for x in range(len(self.databinHeader)+1)] for x in range(idMax+1)]
+        self.dataBinMonth = [[0 for x in range(len(self.dataBinMonthHeader)+1)] for x in range(idMax+1)]
         counter = 0
-        for row in self.databinData:
+        for row in self.dataBinMonth:
             row[0] = counter
             counter += 1
 
         # bin data
-        for row in self.databinData:
-            print(row)
         for row in self.data:
-            self.databinData[row[0]] = 4
+            #                                 [year   , month ] + field for id
+            column = self.dataBinMonthHeader.index([row[1] , row[2]])+1
+            self.dataBinMonth[row[0]][column] += float(row[4])
+
+        return 0
 
 
-        print(self.databinHeader)
+    def getDataBinYear(self):
+        """ bins the user data into years
+            Example
+            dataBinYearHeader = [          2014, 2015, 2016]
+            dataBinYear       = [[userId1, 5,    0,    6],
+                                 [userId2, 9,    8,    8]]
+        """
+        # create dates
+        now = datetime.datetime.now()
+        year = int(now.strftime("%Y"))
 
+        # first, find oldest date and highes user id
+        yearOldest = 2999
+        idMax = 0
+        for row in self.data:
+            row[0] = int(row[0])
+            row[1] = int(row[1])
+            if row[1] < yearOldest:
+                yearOldest = row[1]
+            if row[0] > idMax:
+                idMax = row[0]
+
+        # create header
+        self.dataBinYearHeader = [x for x in range(yearOldest, year+1)]
+
+        # create empty database to fill with stuff
+        self.dataBinYear = [[0 for x in range(len(self.dataBinYearHeader)+1)] for x in range(idMax+1)]
+        counter = 0
+        for row in self.dataBinMonth:
+            row[0] = counter
+            counter += 1
+
+        # bin data
+        for row in self.data:
+            #                                     year   + field for id
+            column = self.dataBinYearHeader.index(row[1])+1
+            self.dataBinYear[row[0]][column] += float(row[4])
 
         return 0
