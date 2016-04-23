@@ -306,3 +306,40 @@ class cbase:
             self.dataBinYear[row[0]][column] += float(row[4])
 
         return 0
+
+
+    def getDataBinMonthActive(self, months):
+        """ Returns an array of user ids, which were active during the last months. If the database has less months than requested, all existing months are used without raising an error.
+            months: Search depth in months as int
+        """
+        # create dates
+        now = datetime.datetime.now()
+        year = int(now.strftime("%Y"))
+        month = int(now.strftime("%m"))
+
+        months = int(months)
+
+        # check, if database was filled with data
+        if len(self.dataBinMonth) == 0:
+            self.getDataBinMonth()
+
+        if len(self.dataBinMonth) > 0:
+            if len(self.dataBinMonth[0])-1 < months:
+                months = len(self.dataBinMonth[0])-1
+        else:
+            print("Database self.dataBinMonth seems to be empty.")
+            raise
+
+        activeIds = []
+
+        # check for activity
+        for row in self.dataBinMonth:
+            activeRow = False
+            for iMonth in range(months):
+                if int(row[-1-iMonth]) != 0:
+                    activeRow = True
+
+            if activeRow:
+                activeIds.append(int(row[0]))
+
+        return activeIds.sort()
