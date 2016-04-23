@@ -17,6 +17,10 @@ This file is part of coffeedatabase.
 """
 
 
+# system
+import datetime
+
+#coffeedatabase
 from lib import cbase
 
 
@@ -68,10 +72,45 @@ class cprice(cbase.cbase):
         """ Checks, if for one month a double price has been entered
         """
 
-        dataSorted = self.sortArrayLow(self.data,[1, 2, 0])
+        # create dates
+        now = datetime.datetime.now()
+        year = int(now.strftime("%Y"))
+        month = int(now.strftime("%m"))
 
-        for row in self.dataSorted:
-            print(row)
+        # first, find oldest date and highes user id
+        monthOldest = 13
+        yearOldest = 2999
+        idMax = 0
+        for row in self.data:
+            row[0] = int(row[0])
+            row[1] = int(row[1])
+            row[2] = int(row[2])
+            if row[1] < yearOldest:
+                yearOldest = row[1]
+                monthOldest = row[2]
+            elif (row[1] == yearOldest) and (row[2] < monthOldest):
+                monthOldest = row[2]
+            if row[0] > idMax:
+                idMax = row[0]
 
+        # create empty database to fill with stuff
+        dataBinMonth = [[-1 for x in range(len(self.dataBinMonthHeader)+1)] for x in range(idMax+1)]
+        counter = 0
+        for row in self.dataBinMonth:
+            row[0] = counter
+            counter += 1
+
+        # bin data
+        for row in self.data:
+            #                                      [year   , month ] + field for id
+            column = self.dataBinMonthHeader.index([row[1] , row[2]])+1
+            if dataBinMonth[row[0]][column] == -1:
+                if float(row[4]) == 0.0:
+                    dataBinMonth[row[0]][column] = 0
+                else:
+                    dataBinMonth[row[0]][column] += float(row[4])
+            else:
+                print("There is a double entry in the price database for item id ", row)
+                raise
 
         return 0

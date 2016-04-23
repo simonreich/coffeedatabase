@@ -68,20 +68,23 @@ class ckeyboard:
         self.filePayment = config['FILENAME']['filePayment']
         self.fileItem = config['FILENAME']['fileItem']
         self.fileMarks = config['FILENAME']['fileMarks']
+        self.filePrice = config['FILENAME']['filePrice']
 
         if (self.fileUser == "") or \
                 (self.filePayment == "") or \
                 (self.fileMarks == "") or \
+                (self.filePrice == "") or \
                 (self.fileItem == ""):
             print("Broken config file \"config.ini\".")
             raise
 
         # create databases, if they do not exist.
-        database = cdatabase.cdatabase(self.fileUser, self.filePayment, self.fileItem, self.fileMarks)
+        database = cdatabase.cdatabase(self.fileUser, self.filePayment, self.fileItem, self.fileMarks, self.filePrice)
 
         self.user = cuser.cuser(self.fileUser)
         self.payment = cpayment.cpayment(self.filePayment, self.user)
         self.item = citem.citem(self.fileItem, self.fileMarks, self.user)
+        self.price = cprice.cprice(self.filePrice, self.item)
 
 
     def inputStandard(self, valueDescription, valueStandard):
@@ -283,6 +286,53 @@ class ckeyboard:
         self.payment.getDataBinMonthActive(2)
 
 
+
+
         return 0
 
 
+    def priceAdd(self):
+        """ Adds a price the price database
+        """
+
+        priceDescription = []
+        priceStandard = []
+        itemId = []
+        priceOld = [[0 for x in range(0)] for x in range(0)]
+
+        # acquiere old prices, save as [itemId, price]
+        self.price.getDataBinMonth()
+        print (self.price.dataBinMonth)
+        for row in self.price.dataBinMonth:
+            if len(row) >= 2:
+                for x in range(0, len(row)-1):
+                    if not float(row[-1-x]) == 0:
+                        priceOld.append([row[0], str(row[-1-x])])
+                        break
+
+        # create input fields
+        for row in self.item.data:
+            priceDescription.append(str(row[1]) + " " + str(row[2]))
+            priceOldAdded = False
+            for row1 in priceOld:
+                if row[0] == row1[0]:
+                    priceStandard.append(row1[1])
+                    priceOldAdded = True
+            if not priceOldAdded:
+                priceStandard.append("0")
+            itemId.append(row[0])
+
+        inputPrice= self.inputStandard(priceDescription, priceStandard)
+
+        # create dates
+        now = datetime.datetime.now()
+        year = now.strftime("%Y")
+        month = now.strftime("%m")
+        day = now.strftime("%d")
+
+        counter = 0
+        for row in itemId:
+            self.price.priceAdd([row, year, month, day, inputPrice[counter]])
+            counter += 1
+
+        return 0

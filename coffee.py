@@ -102,6 +102,12 @@ def main(argv=None):
             keyboard = ckeyboard.ckeyboard()
             keyboard.marksAdd()
 
+        elif(arg == "--priceadd" or
+                arg == "-pra" or
+                arg == "pra"):
+            keyboard = ckeyboard.ckeyboard()
+            keyboard.priceAdd()
+
         elif(arg == "--temp" or
                 arg == "-t" or
                 arg == "t"):

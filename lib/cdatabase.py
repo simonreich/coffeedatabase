@@ -27,11 +27,12 @@ from lib import citem
 
 
 class cdatabase:
-    def __init__(self, fileUser, filePayment, fileItem, fileMarks):
+    def __init__(self, fileUser, filePayment, fileItem, fileMarks, filePrice):
         fileUser = str(fileUser)
         filePayment = str(filePayment)
         fileItem = str(fileItem)
         fileMarks = str(fileMarks)
+        filePrice = str(filePrice)
 
         # create databases, if they do not exist.
         if not os.path.exists(fileUser):
@@ -40,6 +41,8 @@ class cdatabase:
             self.fileWrite(filePayment, ["Id", "Year", "Month", "Day", "Payment"])
         if not os.path.exists(fileItem):
             self.fileWrite(fileItem, ["Id", "Name", "Unit"])
+        if not os.path.exists(filePrice):
+            self.fileWrite(filePrice, ["Id", "Year", "Month", "Day", "Price"])
         else:
             itemData = self.fileOpen(fileItem)
             for row in itemData:

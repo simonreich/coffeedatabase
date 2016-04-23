@@ -260,7 +260,7 @@ class cbase:
 
         # bin data
         for row in self.data:
-            #                                 [year   , month ] + field for id
+            #                                      [year   , month ] + field for id
             column = self.dataBinMonthHeader.index([row[1] , row[2]])+1
             self.dataBinMonth[row[0]][column] += float(row[4])
 
