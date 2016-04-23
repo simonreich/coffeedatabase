@@ -27,6 +27,7 @@ from lib import cpayment
 from lib import citem
 from lib import cmarks
 from lib import cdatabase
+from lib import cprice
 
 
 # Completer Class
@@ -246,6 +247,24 @@ class ckeyboard:
         """ Adds marks to the marks database
         """
 
+        user = self.getRowByTextname(self.user.getNamelist(), self.user)
+
+        # remove id
+        userId = user[0]
+        del user[0]
+
+        print("")
+        userDescription = ["Name", "Mail", "Status"]
+        inputUser = self.inputStandard(userDescription, user)
+
+        # add user id
+        inputUser.insert(0, userId)
+
+        # save in database
+        self.user.setUser(inputUser)
+
+
+
         marksDescription = [2, "Year", "Month", "Day", 5]
         #itemStandard = ["Coffee", "per cup"]
 
@@ -260,7 +279,8 @@ class ckeyboard:
         """ Temporary Debug stuff
         """
 
-        self.payment.getDatabinMonth ()
+        self.payment.getDataBinYear()
+        self.payment.getDataBinMonthActive(2)
 
 
         return 0
