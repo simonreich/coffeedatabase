@@ -21,16 +21,19 @@ This file is part of coffeedatabase.
 import os.path
 import sys
 import csv
+import datetime
 
 
 class cbase:
     def __init__(self, filename):
         self.data = [[0 for x in range(0)] for x in range(0)]
         self.header = []
-        self.months = [[0 for x in range(0)] for x in range(0)]
         self.filename = filename
+        self.databinHeader = [[0 for x in range(0)] for x in range(0)]
+        self.databinData = [[0 for x in range(0)] for x in range(0)]
 
         self.fileOpen()
+
 
 
     def fileOpen(self):
@@ -69,15 +72,6 @@ class cbase:
         # populate header
         self.header = list(self.data[0])
         del self.data[0]
-
-        # populate months
-        # format is always YYYY-mm sotred as [YYYY, mm]
-        self.months = [[0 for x in range(0)] for x in range(0)]
-        for month in self.header:
-            if len(self.header) == 7:
-                self.months.append([self.header[0:4], self.header[5:7]])
-            else:
-                self.months.append(["", ""])
 
         return 0
 
@@ -220,16 +214,55 @@ class cbase:
                              [userId2, 9,          8,         8]]
         """
 
+        # create dates
+        now = datetime.datetime.now()
+        year = int(now.strftime("%Y"))
+        month = int(now.strftime("%m"))
+        day = int(now.strftime("%d"))
+
         # first, find oldest date
         monthOldest = 13
         yearOldest = 2999
         for row in self.data:
+            row[1] = int(row[1])
+            row[2] = int(row[2])
             if row[1] < yearOldest:
                 yearOldest = row[1]
                 monthOldest = row[2]
             elif (row[1] == yearOldest) and (row[2] < monthOldest):
                 monthOldest = row[2]
 
-        print(str(yearOldest) + " " + str(monthOldest))
+        # create header
+        self.databinHeader = [[0 for x in range(0)] for x in range(0)]
+        monthMin = monthOldest
+        monthMax = 0
+        yearMin = yearOldest
+        yearMax = year+1
+        for iYear in range(yearMin, yearMax):
+            if iYear == year:
+                monthMax = month+1
+            else:
+                monthMax = 13
+            for iMonth in range(monthMin, monthMax):
+                self.databinHeader.append([iYear, iMonth])
+            monthMin = 1
+
+        # create empty database to fill with stuff
+        idMax = 13
+        self.databinData = [[0 for x in range(len(self.databinHeader)+1)] for x in range(idMax+1)]
+        counter = 0
+        for row in self.databinData:
+            row[0] = counter
+            counter += 1
+
+        # bin data
+        for row in self.databinData:
+            print(row)
+        for row in self.data:
+            self.databinData[row[0]] = 4
+
+
+        print(self.databinHeader)
+
 
         return 0
