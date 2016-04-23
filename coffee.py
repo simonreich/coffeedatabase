@@ -102,6 +102,12 @@ def main(argv=None):
             keyboard = ckeyboard.ckeyboard()
             keyboard.marksAdd()
 
+        elif(arg == "--temp" or
+                arg == "-t" or
+                arg == "t"):
+            keyboard = ckeyboard.ckeyboard()
+            keyboard.temp()
+
         elif(len(sys.argv) == 1):
             printHelp(sys.argv[0])
 

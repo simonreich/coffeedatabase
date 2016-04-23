@@ -166,7 +166,7 @@ class ckeyboard:
         """ Adds a payment to the user database
         """
 
-        user = self.getUserByTextname()
+        user = self.getRowByTextname(self.user.getNamelist(), self.user)
 
         # create dates
         now = datetime.datetime.now()
@@ -252,6 +252,16 @@ class ckeyboard:
         #inputItem = self.inputStandard(itemDescription, itemStandard)
 
         self.marks.marksAdd(marksDescription)
+
+        return 0
+
+
+    def temp(self):
+        """ Temporary Debug stuff
+        """
+
+        self.payment.getDatabinMonth ()
+
 
         return 0
 

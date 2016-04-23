@@ -219,3 +219,17 @@ class cbase:
             databinData   = [[userId1, 5,          0,         6],
                              [userId2, 9,          8,         8]]
         """
+
+        # first, find oldest date
+        monthOldest = 13
+        yearOldest = 2999
+        for row in self.data:
+            if row[1] < yearOldest:
+                yearOldest = row[1]
+                monthOldest = row[2]
+            elif (row[1] == yearOldest) and (row[2] < monthOldest):
+                monthOldest = row[2]
+
+        print(str(yearOldest) + " " + str(monthOldest))
+
+        return 0
