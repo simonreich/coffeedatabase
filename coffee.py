@@ -108,6 +108,12 @@ def main(argv=None):
             keyboard = ckeyboard.ckeyboard()
             keyboard.priceAdd()
 
+        elif(arg == "--pricefill" or
+                arg == "-prf" or
+                arg == "prf"):
+            keyboard = ckeyboard.ckeyboard()
+            keyboard.priceFill()
+
         elif(arg == "--temp" or
                 arg == "-t" or
                 arg == "t"):

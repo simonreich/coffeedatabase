@@ -336,3 +336,13 @@ class ckeyboard:
             counter += 1
 
         return 0
+
+
+    def priceFill(self):
+        """ Checks the marks database and matches marks with prices. If a price does not exist, it is requested and added to the price database.
+        """
+
+        print("TODO: implement this cool function.")
+        raise
+
+        return 0
