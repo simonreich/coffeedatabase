@@ -40,7 +40,7 @@ class cdatabase:
         if not os.path.exists(filePayment):
             self.fileWrite(filePayment, ["Id", "Year", "Month", "Day", "Payment"])
         if not os.path.exists(fileItem):
-            self.fileWrite(fileItem, ["Id", "Name", "Unit"])
+            self.fileWrite(fileItem, ["Id", "Name", "Unit", "Status"])
         if not os.path.exists(filePrice):
             self.fileWrite(filePrice, ["Id", "Year", "Month", "Day", "Price"])
         else:

@@ -34,15 +34,20 @@ class citem(cbase.cbase):
 
     def itemAdd(self, item):
         """ Adds an item to the item database
-            item: Item as array ["Name", "Unit"].
+            item: Item as array ["Name", "Unit", "Status:active, inactive"].
         """
 
-        if not len(item) == 2:
-            print("The given item array has wrong format ([\"Name\", \"Unit\"]): ", item)
+        if not len(item) == 3:
+            print("The given item array has wrong format ([\"Name\", \"Unit\", \"Status:active, inactive\"]): ", item)
+            raise
+
+        if not str(item[2]) == "active" and not str(item[2]) == "inactive":
+            print("The given user array has wrong format ([\"Name\", \"Unit\", \"status:active, inactive\"]): ", item)
             raise
 
         item[0] = str(item[0])
         item[1] = str(item[1])
+        item[2] = str(item[2])
 
         # check if name exists and search for highest id
         highid = -1
@@ -63,16 +68,21 @@ class citem(cbase.cbase):
 
     def setItem (self, item):
         """ Sets variables of existing item
-            item: Item as array ["Id", "Name", "Unit"]
+            item: Item as array ["Id", "Name", "Unit", "Status:active, inactive"]
         """
 
-        if not len(item) == 3:
-            print("The given item array has wrong format ([\"Id\", \"Name\", \"Unit\"]): ", item)
+        if not len(item) == 4:
+            print("The given item array has wrong format ([\"Id\", \"Name\", \"Unit\", \"Status:active, inactive, auto\"]): ", item)
+            raise
+
+        if not str(item[3]) == "active" and not str(item[3]) == "inactive" and not str(item[3]) == "auto":
+            print("The given user array has wrong format ([\"Id\", \"Name\", \"Mail\", \"status:active, inactive, auto\"]): ", item)
             raise
 
         item[0] = int(item[0])
         item[1] = str(item[1])
         item[2] = str(item[2])
+        item[3] = str(item[3])
 
         itemFound = False
         counter = 0

@@ -107,6 +107,9 @@ class ckeyboard:
                 print("3 - inactive")
                 textInput = input(str(description) + " [" + valueStandard[counter] + "]: ")
 
+                if textInput == "":
+                    textInput = valueStandard[counter]
+
                 if textInput == "1" or textInput == "active":
                     valueStandard[counter] = "active"
                 elif textInput == "2" or textInput == "auto":
@@ -202,6 +205,7 @@ class ckeyboard:
         itemStandard = ["Coffee", "per cup"]
 
         inputItem = self.inputStandard(itemDescription, itemStandard)
+        inputItem.append("active")
 
         self.item.itemAdd(inputItem)
 
@@ -219,7 +223,7 @@ class ckeyboard:
         del item[0]
 
         print("")
-        itemDescription = ["Name", "Unit"]
+        itemDescription = ["Name", "Unit", "Status"]
         inputItem = self.inputStandard(itemDescription, item)
 
         # add item id
