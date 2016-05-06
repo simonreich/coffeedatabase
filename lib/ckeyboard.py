@@ -259,22 +259,33 @@ class ckeyboard:
         month = now.strftime("%m")
         day = now.strftime("%d")
 
+        self.item.data
+
         # get user
         user = self.getRowByTextname(self.user.getNamelist(), self.user)
 
         # get item list
-        markDescription = self.item.getColumn(1)
+        markDescription = []
         markDefault = []
-        for row in markDescription:
-            markDefault.append("0")
+        for row in self.item.data:
+            if str(row[2]) == "active":
+                markDescription.append(self.item.getColumn(1))
+                markDefault.append("0")
 
+        # query user input
         print("")
         inputMark = self.inputStandard(markDescription, markDefault)
 
+ 
         # create array for cmark class
         markArray = [[0 for x in range(0)] for x in range(0)]
-        for cell in inputMark:
-            markArray.append([user[0], int(year), int(month), int(day), int(cell)])
+        counter = 0
+        for row in self.item.data:
+            if str(row[2]) == "active":
+                markArray.append([user[0], int(year), int(month), int(day), int(inputMark[counter])])
+                counter += 1
+            else:
+                markArray.append([user[0], int(year), int(month), int(day), 0])
 
         # save in database
         self.item.marksAdd(markArray)
