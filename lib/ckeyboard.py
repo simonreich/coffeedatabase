@@ -25,7 +25,6 @@ import configparser
 from lib import cuser
 from lib import cpayment
 from lib import citem
-from lib import cmarks
 from lib import cdatabase
 from lib import cprice
 
@@ -254,30 +253,31 @@ class ckeyboard:
         """ Adds marks to the marks database
         """
 
+        # create dates
+        now = datetime.datetime.now()
+        year = now.strftime("%Y")
+        month = now.strftime("%m")
+        day = now.strftime("%d")
+
+        # get user
         user = self.getRowByTextname(self.user.getNamelist(), self.user)
 
-        # remove id
-        userId = user[0]
-        del user[0]
+        # get item list
+        markDescription = self.item.getColumn(1)
+        markDefault = []
+        for row in markDescription:
+            markDefault.append("0")
 
         print("")
-        userDescription = ["Name", "Mail", "Status"]
-        inputUser = self.inputStandard(userDescription, user)
+        inputMark = self.inputStandard(markDescription, markDefault)
 
-        # add user id
-        inputUser.insert(0, userId)
+        # create array for cmark class
+        markArray = [[0 for x in range(0)] for x in range(0)]
+        for cell in inputMark:
+            markArray.append([user[0], int(year), int(month), int(day), int(cell)])
 
         # save in database
-        self.user.setUser(inputUser)
-
-
-
-        marksDescription = [2, "Year", "Month", "Day", 5]
-        #itemStandard = ["Coffee", "per cup"]
-
-        #inputItem = self.inputStandard(itemDescription, itemStandard)
-
-        self.marks.marksAdd(marksDescription)
+        self.item.marksAdd(markArray)
 
         return 0
 

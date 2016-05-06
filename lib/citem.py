@@ -100,3 +100,24 @@ class citem(cbase.cbase):
         self.fileWrite()
 
         return 0
+
+
+    def marksAdd(self, marks):
+        """ Adds marks to the marks database
+            marks: Marks as array [["Id", "Year", "Month", "Day", "Marks"]].
+        """
+        
+        if not len(marks) == len(self.marks):
+            print("The given marks array has the wrong number of rows. Needed is an array with [[\"Id\", \"Year\", \"Month\", \"Day\", \"Marks\"]]: ", marks)
+            print("Rows needed: ", len(self.marks))
+            print("Rows given: ", len(marks))
+            raise
+
+        # Add mark, if number of marks is not 0
+        counter = 0
+        for row in marks:
+            if not int(row[4]) == 0:
+                self.marks[counter].marksAdd(row)
+            counter += 1
+
+        return 0
