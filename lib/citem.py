@@ -117,7 +117,7 @@ class citem(cbase.cbase):
         counter = 0
         for row in marks:
             if not int(row[4]) == 0:
-                if self.data[counter][2] == "active":
+                if self.data[counter][3] == "active":
                     self.marks[counter].marksAdd(row)
                 else:
                     print("You are trying to add marks to an inactive item. This is not allowed.")

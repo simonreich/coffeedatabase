@@ -268,20 +268,19 @@ class ckeyboard:
         markDescription = []
         markDefault = []
         for row in self.item.data:
-            if str(row[2]) == "active":
-                markDescription.append(self.item.getColumn(1))
+            if str(row[3]) == "active":
+                markDescription.append(row[1])
                 markDefault.append("0")
 
         # query user input
         print("")
         inputMark = self.inputStandard(markDescription, markDefault)
-
  
         # create array for cmark class
         markArray = [[0 for x in range(0)] for x in range(0)]
         counter = 0
         for row in self.item.data:
-            if str(row[2]) == "active":
+            if str(row[3]) == "active":
                 markArray.append([user[0], int(year), int(month), int(day), int(inputMark[counter])])
                 counter += 1
             else:
@@ -357,7 +356,16 @@ class ckeyboard:
         """ Checks the marks database and matches marks with prices. If a price does not exist, it is requested and added to the price database.
         """
 
-        print("TODO: implement this cool function.")
-        raise
+        itemId=0
+        for row in self.item.data:
+            print ("Checking for item " + row[1])
+
+            # Check for marks
+            self.item.marks[itemId].getDataBinMonth()
+            marks = self.item.marks[itemId].dataBinMonth
+            print(marks)
+            itemId += 1
+
+
 
         return 0
