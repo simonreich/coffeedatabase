@@ -77,7 +77,7 @@ class cprice(cbase.cbase):
         year = int(now.strftime("%Y"))
         month = int(now.strftime("%m"))
 
-        # first, find oldest date and highes user id
+        # first, find oldest date and highest user id
         monthOldest = 13
         yearOldest = 2999
         idMax = 0

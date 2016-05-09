@@ -358,14 +358,38 @@ class ckeyboard:
 
         itemId=0
         for row in self.item.data:
-            print ("Checking for item " + row[1])
+            print ("Checking for item " + str(row[1]))
 
             # Check for marks
             self.item.marks[itemId].getDataBinMonth()
-            marks = self.item.marks[itemId].dataBinMonth
-            print(marks)
-            itemId += 1
+            marks = self.item.marks[itemId].dataBinMonthHeader
 
+            # Check for prices
+            self.price.getDataBinMonth()
+            prices = self.price.dataBinMonthHeader 
+
+            # Find missing prices
+            priceMissing = [[0 for x in range(0)] for x in range(0)]
+            for mark in marks:
+                priceFound = False
+                for price in prices:
+                    if mark == price:
+                        priceFound = True
+                if not priceFound:
+                    priceMissing.append(mark)
+
+            # Request user input for missing prices
+            princeLatest = "0"
+            for price in priceMissing:
+                priceDescription = ["Enter price for " + str(row[1]) + " for year " + str(price[0]) + " and month " + str(price[1])]
+                priceStandard = [princeLatest]
+                inputPrice= self.inputStandard(priceDescription, priceStandard)
+                princeLatest = inputPrice[0]
+
+                # save prices
+                self.price.priceAdd([row[0], price[0], price[1], 1, str(inputPrice[0])]
+
+            itemId += 1
 
 
         return 0
