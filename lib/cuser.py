@@ -89,3 +89,27 @@ class cuser(cbase.cbase):
         """
 
         return self.getColumn(1)
+
+
+    def getIdByStatus (self, status):
+        """ Returns array of ids with requested status
+            status: Status as string: active, inactive, or auto
+        """
+
+        status = str(status)
+
+        # check for correct status
+        if not status == "active" \
+                and not status == "inactive" \
+                and not status == "auto":
+            print("Status needs to be active, inactive, or auto.")
+            raise
+
+        result = []
+        for row in self.data:
+            if row[3] == status:
+                result.append(row[0])
+
+        result.sort()
+
+        return result

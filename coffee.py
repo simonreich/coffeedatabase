@@ -102,6 +102,12 @@ def main(argv=None):
             keyboard = ckeyboard.ckeyboard()
             keyboard.marksAdd()
 
+        elif(arg == "--markaddall" or
+                arg == "-maa" or
+                arg == "maa"):
+            keyboard = ckeyboard.ckeyboard()
+            keyboard.marksAddAll()
+
         elif(arg == "--priceadd" or
                 arg == "-pra" or
                 arg == "pra"):

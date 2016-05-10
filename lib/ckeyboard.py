@@ -68,6 +68,7 @@ class ckeyboard:
         self.fileItem = config['FILENAME']['fileItem']
         self.fileMarks = config['FILENAME']['fileMarks']
         self.filePrice = config['FILENAME']['filePrice']
+        self.inactiveMonths = config['LIST']['inactiveMonths']
 
         if (self.fileUser == "") or \
                 (self.filePayment == "") or \
@@ -169,7 +170,7 @@ class ckeyboard:
 
 
     def paymentAdd(self):
-        """ Adds a payment to the user database
+        """ Adds a payment to the payment database
         """
 
         user = self.getRowByTextname(self.user.getNamelist(), self.user)
@@ -292,15 +293,67 @@ class ckeyboard:
         return 0
 
 
-    def temp(self):
-        """ Temporary Debug stuff
+    def marksAddAll(self):
+        """ Adds marks to the marks database for all active users
         """
 
-        self.payment.getDataBinYear()
-        self.payment.getDataBinMonthActive(2)
+        # This list holds all our active and auto active users
+        userActive = self.user.getIdByStatus("active")
 
+        # Check for auto active users in payment and marks
+        userAuto = self.user.getIdByStatus("auto")
+        userAutoM = self.payment.getIdDataBinMonthActive(self.inactiveMonths)
+        print(userAutoM)
+        print("****")
+        print(marks.getIdDataBinMonthActive(self.inactiveMonths))
+        for marks in self.item.marks:
+            uesrAutoM = list(set(userAutoM + marks.getIdDataBinMonthActive(self.inactiveMonths)))
 
+        # which user is active in last n months and auto active?
+        userAuto = set(userAuto).intersection(uesrAutoM)
 
+        # merge both lists
+        userActive = userActive + userAuto
+
+        # remove double entries
+        userActive = list(set(userActive))
+        userActive.sort()
+
+        # create dates
+        now = datetime.datetime.now()
+        year = now.strftime("%Y")
+        month = now.strftime("%m")
+        day = now.strftime("%d")
+
+        for userId in userActive:
+            user = self.user.getRowById(userId)
+
+            print("\n", user[1])
+
+            # get item list
+            markDescription = []
+            markDefault = []
+            for row in self.item.data:
+                if str(row[3]) == "active":
+                    markDescription.append(row[1])
+                    markDefault.append("0")
+
+            # query user input
+            print("")
+            inputMark = self.inputStandard(markDescription, markDefault)
+ 
+            # create array for cmark class
+            markArray = [[0 for x in range(0)] for x in range(0)]
+            counter = 0
+            for row in self.item.data:
+                if str(row[3]) == "active":
+                    markArray.append([user[0], int(year), int(month), int(day), int(inputMark[counter])])
+                    counter += 1
+                else:
+                    markArray.append([user[0], int(year), int(month), int(day), 0])
+
+            # save in database
+            self.item.marksAdd(markArray)
 
         return 0
 

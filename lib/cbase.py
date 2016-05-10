@@ -308,7 +308,7 @@ class cbase:
         return 0
 
 
-    def getDataBinMonthActive(self, months):
+    def getIdDataBinMonthActive(self, months):
         """ Returns an array of user ids, which were active during the last months. If the database has less months than requested, all existing months are used without raising an error.
             months: Search depth in months as int
         """
