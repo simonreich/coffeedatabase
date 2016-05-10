@@ -316,7 +316,6 @@ class ckeyboard:
 
         # acquiere old prices, save as [itemId, price]
         self.price.getDataBinMonth()
-        print (self.price.dataBinMonth)
         for row in self.price.dataBinMonth:
             if len(row) >= 2:
                 for x in range(0, len(row)-1):
@@ -366,17 +365,38 @@ class ckeyboard:
 
             # Check for prices
             self.price.getDataBinMonth()
-            prices = self.price.dataBinMonthHeader 
+            pricesH = self.price.dataBinMonthHeader
+            pricesF = self.price.dataBinMonth
+            prices = []
 
-            # Find missing prices
-            priceMissing = [[0 for x in range(0)] for x in range(0)]
+            # Find Id in pricesF
+            for rowId in pricesF:
+                if rowId[0] == row[0]:
+                    prices = rowId
+                    del prices[0]
+
+            # If Id was not found, we create an empty array
+            if len(prices) == 0:
+                if len(pricesF) >= 1:
+                    prices = [0 for x in range(len(pricesF[0])-1)]
+
+            # Find missing prices in Header
             for mark in marks:
                 priceFound = False
-                for price in prices:
+                for price in pricesH:
                     if mark == price:
                         priceFound = True
                 if not priceFound:
-                    priceMissing.append(mark)
+                    pricesH.append(mark)
+                    prices.append(0)
+
+            # Find empty prices
+            priceMissing = [[0 for x in range(0)] for x in range(0)]
+            counter = 0
+            for price in prices:
+                if price == 0:
+                    priceMissing.append(pricesH[counter])
+                counter += 1
 
             # Request user input for missing prices
             princeLatest = "0"
@@ -387,9 +407,8 @@ class ckeyboard:
                 princeLatest = inputPrice[0]
 
                 # save prices
-                self.price.priceAdd([row[0], price[0], price[1], 1, str(inputPrice[0])]
+                self.price.priceAdd([row[0], price[0], price[1], 1, str(inputPrice[0])])
 
             itemId += 1
-
 
         return 0

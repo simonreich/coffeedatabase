@@ -94,7 +94,28 @@ class cprice(cbase.cbase):
                 idMax = row[0]
 
         # create empty database to fill with stuff
-        dataBinMonth = [[-1 for x in range(len(self.dataBinMonthHeader)+1)] for x in range(idMax+1)]
+        #dataBinMonth = [[-1 for x in range(((yearOldest-year-1)*12) + (month) + (12-monthOldest))] for x in range(idMax+1)]
+        #counter = 0
+        #for row in self.dataBinMonth:
+        #    row[0] = counter
+        #    counter += 1
+        # create header
+        self.dataBinMonthHeader = [[0 for x in range(0)] for x in range(0)]
+        monthMin = monthOldest
+        monthMax = 0
+        yearMin = yearOldest
+        yearMax = year+1
+        for iYear in range(yearMin, yearMax):
+            if iYear == year:
+                monthMax = month+1
+            else:
+                monthMax = 13
+            for iMonth in range(monthMin, monthMax):
+                self.dataBinMonthHeader.append([iYear, iMonth])
+            monthMin = 1
+
+        # create empty database to fill with stuff
+        self.dataBinMonth = [[-1 for x in range(len(self.dataBinMonthHeader)+1)] for x in range(idMax+1)]
         counter = 0
         for row in self.dataBinMonth:
             row[0] = counter
@@ -104,13 +125,16 @@ class cprice(cbase.cbase):
         for row in self.data:
             #                                      [year   , month ] + field for id
             column = self.dataBinMonthHeader.index([row[1] , row[2]])+1
-            if dataBinMonth[row[0]][column] == -1:
+            if self.dataBinMonth[row[0]][column] == -1:
                 if float(row[4]) == 0.0:
-                    dataBinMonth[row[0]][column] = 0
+                    self.dataBinMonth[row[0]][column] = 0
                 else:
-                    dataBinMonth[row[0]][column] += float(row[4])
+                    self.dataBinMonth[row[0]][column] += float(row[4])
             else:
                 print("There is a double entry in the price database for item id ", row)
+                print("Item Id: ", row[0])
+                print("Year: ", row[1])
+                print("Month: ", row[2])
                 raise
 
         return 0
