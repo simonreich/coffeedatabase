@@ -107,8 +107,8 @@ class cuser(cbase.cbase):
 
         result = []
         for row in self.data:
-            if row[3] == status:
-                result.append(row[0])
+            if str(row[3]) == str(status):
+                result.append(int(row[0]))
 
         result.sort()
 

@@ -332,17 +332,21 @@ class cbase:
 
         activeIds = []
 
+        # no entries in database
+        if months == 0:
+            return activeIds
+
         # check for activity
         for row in self.dataBinMonth:
             activeRow = False
             for iMonth in range(months):
-                if int(row[-1-iMonth]) != 0:
+                if not int(row[-1-iMonth]) == 0:
                     activeRow = True
 
             if activeRow:
                 activeIds.append(int(row[0]))
 
-        return activeIds.sort()
+        return activeIds
 
 
     def sortArrayHigh(array, cols):

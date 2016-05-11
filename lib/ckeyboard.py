@@ -303,20 +303,26 @@ class ckeyboard:
         # Check for auto active users in payment and marks
         userAuto = self.user.getIdByStatus("auto")
         userAutoM = self.payment.getIdDataBinMonthActive(self.inactiveMonths)
-        print(userAutoM)
-        print("****")
-        print(marks.getIdDataBinMonthActive(self.inactiveMonths))
         for marks in self.item.marks:
-            uesrAutoM = list(set(userAutoM + marks.getIdDataBinMonthActive(self.inactiveMonths)))
+            userAutoT = marks.getIdDataBinMonthActive(self.inactiveMonths)
+            userAutoM = userAutoM + userAutoT
+        userAutoM = list(set(userAutoM))
 
         # which user is active in last n months and auto active?
-        userAuto = set(userAuto).intersection(uesrAutoM)
+        userAuto = list(set(userAuto).intersection(userAutoM))
 
         # merge both lists
         userActive = userActive + userAuto
 
         # remove double entries
         userActive = list(set(userActive))
+
+        # remove inactive users
+        userInactive = self.user.getIdByStatus("inactive")
+        userInactive = list(set(userActive).intersection(userInactive))
+        userActive = [x for x in userActive if x not in userInactive]
+
+        # sort
         userActive.sort()
 
         # create dates
