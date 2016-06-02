@@ -471,3 +471,9 @@ class ckeyboard:
             itemId += 1
 
         return 0
+
+
+    def balance(self):
+        """ Compute the balance
+        """
+

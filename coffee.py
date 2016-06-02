@@ -120,6 +120,12 @@ def main(argv=None):
             keyboard = ckeyboard.ckeyboard()
             keyboard.priceFill()
 
+        elif(arg == "--balance" or
+                arg == "-b" or
+                arg == "b"):
+            keyboard = ckeyboard.ckeyboard()
+            keyboard.balance()
+
         elif(arg == "--temp" or
                 arg == "-t" or
                 arg == "t"):
