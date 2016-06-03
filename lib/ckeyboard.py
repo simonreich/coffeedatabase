@@ -27,6 +27,7 @@ from lib import cpayment
 from lib import citem
 from lib import cdatabase
 from lib import cprice
+from lib import cbalance
 
 
 # Completer Class
@@ -477,3 +478,6 @@ class ckeyboard:
         """ Compute the balance
         """
 
+        # create balance class
+        balance = cbalance.cbalance(self.user, self.payment, self.price, self.item)
+        balance.balanceCompute()
