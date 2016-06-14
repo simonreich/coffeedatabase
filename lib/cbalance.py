@@ -43,6 +43,12 @@ class cbalance(cbase.cbase):
         year = int(now.strftime("%Y"))
         month = int(now.strftime("%m"))
 
+        # do precomputations
+        self.payment.getDataBinMonth()
+        self.price.getDataBinMonth()
+        for markclass in self.item.marks:
+            markclass.getDataBinMonth()
+
         # First, find oldest marks
         if len(self.item.marks) == 0:
             print("No marks found in marks database.")
@@ -52,7 +58,6 @@ class cbalance(cbase.cbase):
         monthOldest = 13
         yearOldest = 2999
         for markclass in self.item.marks:
-            markclass.getDataBinMonth()
             for row in markclass.dataBinMonthHeader:
                 row[0] = int(row[0])
                 row[1] = int(row[1])
@@ -94,3 +99,28 @@ class cbalance(cbase.cbase):
             counter += 1
 
         # now, fill empty database
+        counter = 0
+        for _c in self.dataBinMonth:
+            for _cDate in self.dataBinMonthHeader:
+                # date[0] year
+                # date[1] month
+                # now, first check marks
+                markArray = []
+                for markclass in self.item.marks:
+                    try:
+                        markArray.append(markclass.dataBinMonth[counter][dataBinMonthHeader.index(_cDate)])
+                    except:
+                        markArray.append(0)
+
+                # next, get prices
+                priceArray = []
+                for row in self.price.dataBinMonth:
+                    try:
+                        markArray.append(markclass.dataBinMonth[counter][dataBinMonthHeader.index(_cDate)])
+                    except:
+                        markArray.append(0)
+
+
+
+
+            counter += 1
