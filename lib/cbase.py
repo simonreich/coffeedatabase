@@ -262,6 +262,8 @@ class cbase:
         for row in self.data:
             #                                      [year   , month ] + field for id
             column = self.dataBinMonthHeader.index([row[1] , row[2]])+1
+            if row[4] == "":
+                row[4] = 0.0
             self.dataBinMonth[row[0]][column] += float(row[4])
 
         return 0
@@ -372,3 +374,61 @@ class cbase:
         for col in reversed(cols):
             table = sorted(table, key=operator.itemgetter(col))
         return table
+
+
+    def fileOpenTemplate(self, filename):
+        """ Opens a file and returns its contents
+            filename: file name as string
+        """
+
+        if not os.path.exists(filename):
+            print("File " + filename + " not found.")
+            raise
+    
+        # Datei oeffnen
+        try:
+            fileInputHandle = open(filename, 'rt')
+            fileInputReader = fileInputHandle.readlines()
+        except:
+            print("Could not open and read file", filename)
+            raise
+    
+        data = [[0 for x in range(0)] for x in range(0)]
+        for row in fileInputReader:
+            data.append(row)
+        
+        # Datei schliessen
+        try:
+            fileInputHandle.close()
+        except:
+            print("Could not close file", filename)
+            raise
+    
+        return data
+    
+    
+    def fileWriteTemplate(self, filename, data):
+        """ Writes to a file
+            filename: file name as string
+            data: data list to write
+        """
+        if os.path.exists(filename) == True:
+            print("File " + filename + " already exists.")
+            raise
+    
+        # Daten speichern
+        try:
+            fileOutputHandle = open(filename, "wt")
+        except:
+            print("Could not open and read file", filename)
+            raise
+        
+        for row in data:
+            fileOutputHandle.write("".join(str(row)))
+    
+        # Datei schliessen
+        try:
+            fileOutputHandle.close()
+        except:
+            print("Could not close file", filename)
+            raise

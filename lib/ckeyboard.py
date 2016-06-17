@@ -70,6 +70,8 @@ class ckeyboard:
         self.fileMarks = config['FILENAME']['fileMarks']
         self.filePrice = config['FILENAME']['filePrice']
         self.inactiveMonths = config['LIST']['inactiveMonths']
+        self.fileTemplateBalanceMonth = config['FILENAME']['fileTemplateBalanceMonth']
+        self.fileOutBalanceMonth = config['FILENAME']['fileOutBalanceMonth']
 
         if (self.fileUser == "") or \
                 (self.filePayment == "") or \
@@ -86,6 +88,7 @@ class ckeyboard:
         self.payment = cpayment.cpayment(self.filePayment, self.user)
         self.item = citem.citem(self.fileItem, self.fileMarks, self.user)
         self.price = cprice.cprice(self.filePrice, self.item)
+        self.balance = cbalance.cbalance(self.user, self.payment, self.price, self.item, self.inactiveMonths, self.fileTemplateBalanceMonth, self.fileOutBalanceMonth)
 
 
     def inputStandard(self, valueDescription, valueStandard):
@@ -474,10 +477,9 @@ class ckeyboard:
         return 0
 
 
-    def balance(self):
+    def balanceExportPDF(self):
         """ Compute the balance
         """
 
         # create balance class
-        balance = cbalance.cbalance(self.user, self.payment, self.price, self.item)
-        balance.balanceCompute()
+        self.balance.exportMonthPDF(2016, 6, 12)

@@ -126,6 +126,12 @@ def main(argv=None):
             keyboard = ckeyboard.ckeyboard()
             keyboard.balance()
 
+        elif(arg == "--balanceexportpdf" or
+                arg == "-bep" or
+                arg == "bep"):
+            keyboard = ckeyboard.ckeyboard()
+            keyboard.balanceExportPDF()
+
         elif(arg == "--temp" or
                 arg == "-t" or
                 arg == "t"):

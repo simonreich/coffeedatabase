@@ -1,0 +1,37 @@
+\documentclass[a4paper, 10pt, landscape]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[ngerman]{babel}
+\usepackage{wallpaper}
+\usepackage[]{units}
+\usepackage{datatool}
+\usepackage[left=0.5cm, right=0.5cm, top=0.5cm, bottom=0.5cm, includeheadfoot, landscape]{geometry}
+\usepackage{lastpage}
+\usepackage{fancyhdr}
+\usepackage{longtable}
+
+% Zeiten
+\newcommand*{\PrintTime}[1]
+{%
+	\ifthenelse
+		{\DTLisieq{#1}{}}
+		{-}
+		{\unit[#1]{s}}
+}%
+
+\pagestyle{fancy}
+\lhead{test}
+\chead{test}
+\rhead{Seite \thepage\ von \pageref{LastPage}}
+
+
+\begin{document}
+
+
+<template:balancetable>
+
+
+\vfill
+\end{document}
