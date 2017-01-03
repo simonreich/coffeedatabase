@@ -57,7 +57,7 @@ class cbalance(cbase.cbase):
 
         # do precomputations
         self.payment.getDataBinMonth()
-        self.price.getDataBinMonth()
+        #self.price.getDataBinMonth()       #price is already loaded. getDataBinMonth() create only sparse database.
         for markclass in self.item.marks:
             markclass.getDataBinMonth()
 
@@ -78,6 +78,16 @@ class cbalance(cbase.cbase):
                     monthOldest = row[1]
                 elif (row[0] == yearOldest) and (row[1] < monthOldest):
                     monthOldest = row[1]
+
+        # next, find oldest payments
+        for row in self.payment.dataBinMonthHeader:
+            row[0] = int(row[0])
+            row[1] = int(row[1])
+            if row[0] < yearOldest:
+                yearOldest = row[0]
+                monthOldest = row[1]
+            elif (row[0] == yearOldest) and (row[1] < monthOldest):
+                monthOldest = row[1]
 
         # find highest id
         idMax = -1
@@ -136,7 +146,7 @@ class cbalance(cbase.cbase):
 
                 # get payments
                 try:
-                    payment = self.payment.dataBinMonth[counter][self.payment.dataBinMonthHeader.index(_cDate)+1]
+                    payment = float(self.payment.dataBinMonth[counter][self.payment.dataBinMonthHeader.index(_cDate)+1])
                 except:
                     payment = 0.0;
 
@@ -160,7 +170,7 @@ class cbalance(cbase.cbase):
                 self.dataBinMonth[counter][counter1+1] = payment
                 counter2 = 0
                 for row in markArray:
-                    self.dataBinMonth[counter][counter1+1] -= float(markArray[counter2])*float(priceArray[counter2])
+                    self.dataBinMonth[counter][counter1+1] -= float("{0:.2f}".format(float(markArray[counter2])*float(priceArray[counter2])))
                     counter2 += 1
 
                 counter1 += 1
@@ -177,6 +187,9 @@ class cbalance(cbase.cbase):
                     self.dataBinMonth[counter][counter1] += float(self.dataBinMonth[counter][counter1-1])
                 counter1 += 1
             counter += 1
+
+        print(self.dataBinMonthHeader)
+        print(self.dataBinMonth)
 
 
     def exportMonthPDF(self, year, month, day):
@@ -204,13 +217,27 @@ class cbalance(cbase.cbase):
 
         # This will hold the balance table
         expT = []
-        expT.append("\\begin*{table}[]\n")
-        expT.append("  \\centering\n")
-        expT.append("  \\begin{tabular}{lrrccr}\n")
-        expT.append("    \\toprule\n")
-        expT.append("    \\multirow{2}{*}{Name} & balance & \\multirow{2}{*}{Name} & coffee & milk & balance \\\\\n")
-        expT.append("                           & old     &                        & 0.42\\euro / cup & 0.08\\euro / \\unit[50]{ml} & " + str(day) + "." + str(month) + "." + str(year))
-        expT.append("\n    \\midrule\n")
+        expT.append("\\begin{longtable}{lrr")
+        # Add all items
+        for _item in self.item.data:
+            if _item[3] == "active":
+                expT.append("c")
+        expT.append("r}\n")
+        expT.append("  \\toprule\n")
+        expT.append("  \\multicolumn{1}{c}{\\multirow{2}{*}{Name}} & \\multicolumn{1}{c}{\\multirow{2}{*}{Balance old}} & \\multicolumn{1}{c}{\\multirow{2}{*}{Payment}} & ")
+        # Add all items
+        for _item in self.item.data:
+            if _item[3] == "active":
+                expT.append(_item[1] + " & ")
+        expT.append(" \\multicolumn{1}{c}{Balance}\\\\\n")
+        expT.append("                         &                               &         & ")
+        # Add all items
+        for _item in self.item.data:
+            if _item[3] == "active":
+                p = self.price.getDataBinMonthByDate(_item[0],  int(year), int(month))
+                expT.append("\\unit[" + str("{:.2f}".format(p)) + "]{\euro} " + _item[2] + " & ")
+        expT.append(str(day) + "." + str(month) + "." + str(year) + "\\\\")
+        expT.append("\n  \\midrule\n")
 
         # This list holds all our active and auto active users
         userActive = self.user.getIdByStatus("active")
@@ -260,14 +287,22 @@ class cbalance(cbase.cbase):
                 except:
                     print("For user", user[1], "there is no balance information for year", year, "and month", month-1)
                     raise
+                if float(balanceOld) < 0:
+                    balanceOld = "\\textcolor{red}{\\unit[" + str("{0:.2f}".format(balanceOld)) + "]{\euro}}"
+                else:
+                    balanceOld = "\\unit[" + str("{0:.2f}".format(balanceOld)) + "]{\euro}"
 
                 # get payments
                 try:
                     payment = self.payment.dataBinMonth[counter][self.payment.dataBinMonthHeader.index([year, month])+1]
                 except:
-                    payment = 0.0;
-                if payment == 0.0:
+                    payment = 0;
+                if float(payment) < 0:
+                    payment = "\\textcolor{red}{\\unit[" + str("{0:.2f}".format(payment)) + "]{\euro}}"
+                elif float(payment) == 0:
                     payment = ""
+                else:
+                    payment = "\\unit[" + str("{0:.2f}".format(payment)) + "]{\euro}"
 
                 # get marks
                 markArray = []
@@ -281,18 +316,28 @@ class cbalance(cbase.cbase):
                     if _m == 0:
                         marks += "& "
                     else:
-                        marks += str(_m) + " & "
+                        marks += str("{0:.0f}".format(_m)) + " & "
 
-                expT.append("    " + user[1]+ "&"+ str(balanceOld)+ "&"+ str(payment)+ "&"+ marks)
-                expT.append("\n")
-                if counter < len(self.dataBinMonth)-1:
+                # get new balance
+                try:
+                    balanceNew = self.dataBinMonth[counter][self.dataBinMonthHeader.index([year, month])+1]
+                except:
+                    print("For user", user[1], "there is no balance information for year", year, "and month", month)
+                    raise
+                if float(balanceNew) < 0:
+                    balanceNew = "\\textcolor{red}{\\unit[" + str("{0:.2f}".format(balanceNew)) + "]{\euro}}"
+                else:
+                    balanceNew = "\\unit[" + str("{0:.2f}".format(balanceNew)) + "]{\euro}"
+
+                expT.append("    " + user[1]+ "&"+ str(balanceOld) + " & "+ str(payment) + " & " + marks + balanceNew)
+                expT.append("\\\\\n")
+                if counter < len(self.dataBinMonth)-2:
                     expT.append("    \\midrule\n")
 
             counter += 1
 
-        expT.append("    \\bottomrule\n")
-        expT.append("  \\end{tabular}\n")
-        expT.append("\\end*{table}\n")
+        expT.append("  \\bottomrule\n")
+        expT.append("\\end{longtable}\n")
 
         # open file
         template = self.fileOpenTemplate(self.fileTemplateBalanceMonth)
@@ -305,9 +350,7 @@ class cbalance(cbase.cbase):
             else:
                 expD.append(row)
 
-        print(expD)
-
         # write file
-        self.fileWriteTemplate( self.fileOutBalanceMonth, expD)
+        self.fileWriteTemplate( self.fileOutBalanceMonth + str(year) + "-" + str(month) + "-" + str(day) + ".tex", expD)
 
 

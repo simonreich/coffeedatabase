@@ -310,6 +310,17 @@ class cbase:
         return 0
 
 
+    def getDataBinMonthByDate(self, userId,  year, month):
+        """ Searches in dataBinMonthHeader for year and month, than returns entry for specific userId
+            Example
+            dataBinMonthHeader = [          [2015, 12], [2016, 1], [2016, 2]]
+            dataBinMonth       = [[userId1, 5,          0,         6],
+                                  [userId2, 9,          8,         8]]
+        """
+
+        return self.dataBinMonth[userId][self.dataBinMonthHeader.index([year, month])+1]
+
+
     def getIdDataBinMonthActive(self, months):
         """ Returns an array of user ids, which were active during the last months. If the database has less months than requested, all existing months are used without raising an error.
             months: Search depth in months as int

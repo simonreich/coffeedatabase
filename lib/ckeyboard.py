@@ -378,7 +378,6 @@ class ckeyboard:
         priceOld = [[0 for x in range(0)] for x in range(0)]
 
         # acquiere old prices, save as [itemId, price]
-        self.price.getDataBinMonth()
         for row in self.price.dataBinMonth:
             if len(row) >= 2:
                 for x in range(0, len(row)-1):
@@ -427,7 +426,6 @@ class ckeyboard:
             marks = self.item.marks[itemId].dataBinMonthHeader
 
             # Check for prices
-            self.price.getDataBinMonth()
             pricesH = self.price.dataBinMonthHeader
             pricesF = self.price.dataBinMonth
             prices = []
@@ -482,4 +480,4 @@ class ckeyboard:
         """
 
         # create balance class
-        self.balance.exportMonthPDF(2016, 6, 12)
+        self.balance.exportMonthPDF(2013, 12, 12)

@@ -29,6 +29,9 @@ class cprice(cbase.cbase):
         super().__init__(filename)
         self.item = item
 
+        self.getDataBinMonth()
+        self.fillDataBin()
+
 
     def priceAdd(self, price):
         """ Adds a price to the price database
@@ -138,3 +141,21 @@ class cprice(cbase.cbase):
                 raise
 
         return 0
+
+
+    def fillDataBin(self):
+        """ self.dataBinMonthHeader, self.dataBinMonth, self.dataBinYearHeader, self.dataBinYear are sparse. Fill them with the last value
+        """
+
+        for row in self.dataBinMonth:
+            counter = 0
+            priceOld = 0.0
+            for cell in row:
+                if counter == 1:
+                    priceOld = float(cell)
+                if counter > 1:
+                    if float(cell) == 0.0:
+                        row[counter] = float(priceOld)
+                    else:
+                        priceOld = float(cell)
+                counter += 1
