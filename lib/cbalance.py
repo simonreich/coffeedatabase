@@ -467,6 +467,10 @@ class cbalance(cbase.cbase):
         self.fileWriteTemplate( self.fileOutBalanceMonth + str(year) + "-" + str(month) + "-" + str(day) + ".tex", expL)
 
 
+        # create crazy statistics
+        self.getStatistics(year, month)
+
+
     def exportMonthListPDF(self, year, month, day):
         """ This function exports the list of names of year, month to a latex file
             year: year to create
@@ -552,10 +556,6 @@ class cbalance(cbase.cbase):
 
         # write file
         self.fileWriteTemplate( self.fileOutListMonth + str(year) + "-" + str(month) + "-" + str(day) + ".tex", expL)
-
-
-        # create crazy statistics
-        self.getStatistics(year, month)
 
 
     def getAcitvatedUser (self):
