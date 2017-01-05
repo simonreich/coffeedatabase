@@ -72,6 +72,9 @@ class ckeyboard:
         self.inactiveMonths = config['LIST']['inactiveMonths']
         self.fileTemplateBalanceMonth = config['FILENAME']['fileTemplateBalanceMonth']
         self.fileOutBalanceMonth = config['FILENAME']['fileOutBalanceMonth']
+        self.fileTemplateListMonth = config['FILENAME']['fileTemplateListMonth']
+        self.fileOutListMonth = config['FILENAME']['fileOutListMonth']
+        self.fileOutFolder = config['FILENAME']['fileOutFolder']
 
         if (self.fileUser == "") or \
                 (self.filePayment == "") or \
@@ -84,11 +87,11 @@ class ckeyboard:
         # create databases, if they do not exist.
         database = cdatabase.cdatabase(self.fileUser, self.filePayment, self.fileItem, self.fileMarks, self.filePrice)
 
-        self.user = cuser.cuser(self.fileUser)
+        self.user = cuser.cuser(self.fileUser, self.inactiveMonths)
         self.payment = cpayment.cpayment(self.filePayment, self.user)
         self.item = citem.citem(self.fileItem, self.fileMarks, self.user)
         self.price = cprice.cprice(self.filePrice, self.item)
-        self.balance = cbalance.cbalance(self.user, self.payment, self.price, self.item, self.inactiveMonths, self.fileTemplateBalanceMonth, self.fileOutBalanceMonth)
+        self.balance = cbalance.cbalance(self.user, self.payment, self.price, self.item, self.inactiveMonths, self.fileTemplateBalanceMonth, self.fileOutBalanceMonth, self.fileTemplateListMonth, self.fileOutListMonth, self.fileOutFolder)
 
 
     def inputStandard(self, valueDescription, valueStandard):
@@ -479,5 +482,33 @@ class ckeyboard:
         """ Compute the balance
         """
 
+        # create dates
+        now = datetime.datetime.now()
+        year = int(now.strftime("%Y"))
+        month = int(now.strftime("%m"))
+
+        dateDescription = ["Year", "Month"]
+        dateStandard = [str(year), str(month)]
+
+        inputDate = self.inputStandard(dateDescription, dateStandard)
+
         # create balance class
-        self.balance.exportMonthPDF(2013, 12, 12)
+        self.balance.exportMonthPDF(inputDate[0], inputDate[1], 1)
+
+
+    def listExportPDF(self):
+        """ Compute the name list
+        """
+
+        # create dates
+        now = datetime.datetime.now()
+        year = int(now.strftime("%Y"))
+        month = int(now.strftime("%m"))
+
+        dateDescription = ["Year", "Month"]
+        dateStandard = [str(year), str(month)]
+
+        inputDate = self.inputStandard(dateDescription, dateStandard)
+
+        # create balance class
+        self.balance.exportMonthListPDF(inputDate[0], inputDate[1], 1)

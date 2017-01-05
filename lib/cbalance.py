@@ -19,13 +19,15 @@ This file is part of coffeedatabase.
 
 # system
 import datetime
+from operator import itemgetter
+import copy
 
 # coffeedatabase
 from lib import cbase
 
 
 class cbalance(cbase.cbase):
-    def __init__(self, user, payment, price, item, inactiveMonths, fileTemplateBalanceMonth, fileOutBalanceMonth):
+    def __init__(self, user, payment, price, item, inactiveMonths, fileTemplateBalanceMonth, fileOutBalanceMonth, fileTemplateListMonth, fileOutListMonth, fileOutFolder):
         self.user = user
         self.payment = payment
         self.price = price
@@ -42,6 +44,9 @@ class cbalance(cbase.cbase):
 
         self.fileTemplateBalanceMonth = fileTemplateBalanceMonth
         self.fileOutBalanceMonth = fileOutBalanceMonth
+        self.fileTemplateListMonth = fileTemplateListMonth
+        self.fileOutListMonth = fileOutListMonth
+        self.fileOutFolder = fileOutFolder
 
         # compute balance
         self.getDataBinMonth()
@@ -188,9 +193,6 @@ class cbalance(cbase.cbase):
                 counter1 += 1
             counter += 1
 
-        print(self.dataBinMonthHeader)
-        print(self.dataBinMonth)
-
 
     def exportMonthPDF(self, year, month, day):
         """ This function exports the balance of year, month to a latex file
@@ -215,6 +217,73 @@ class cbalance(cbase.cbase):
             print("Day is not in range", day)
             raise
 
+        # This list holds all our active and auto active users
+        userActive = self.getAcitvatedUser ()
+
+        # Create an array, which will hold all our balance data as [id, old balance, payment, new balance, marks]. This will allow us to sort
+        userActiveBalance = [[0 for x in range(0)] for x in range(0)]
+        counter = 0
+        for row in self.dataBinMonth:
+            # query user
+            user = self.user.getRowById(row[0])
+
+            userActiveBalanceRow = []
+            # user needs to be on list
+            if user[0] in userActive:
+                userActiveBalanceRow = [user[0]]
+
+                # compute old date
+                monthOld = month-1
+                yearOld = year
+                monthOld2 = month-2
+                yearOld2 = year
+                if monthOld == 0:
+                    yearOld = year - 1
+                    monthOld = 12
+                if monthOld2 == 0:
+                    yearOld2 = year - 1
+                    monthOld2 = 12
+                elif monthOld2 == -1:
+                    yearOld2 = year - 1
+                    monthOld2 = 11
+
+                # get old balance
+                try:
+                    balanceOld = self.dataBinMonth[counter][self.dataBinMonthHeader.index([yearOld2, monthOld2])+1]
+                except:
+                    print("For user", user[1], "there is no balance information for year", yearOld, "and month", monthOld)
+                    raise
+                userActiveBalanceRow.append(float(balanceOld))
+
+                # get payments
+                try:
+                    payment = self.payment.dataBinMonth[counter][self.payment.dataBinMonthHeader.index([yearOld, monthOld])+1]
+                except:
+                    payment = 0.0;
+                userActiveBalanceRow.append(float(payment))
+
+                # get new balance
+                try:
+                    balanceNew = self.dataBinMonth[counter][self.dataBinMonthHeader.index([year, month])+1]
+                except:
+                    print("For user", user[1], "there is no balance information for year", year, "and month", month)
+                    raise
+                userActiveBalanceRow.append(float(balanceNew))
+
+                # get marks
+                markArray = []
+                for markclass in self.item.marks:
+                    try:
+                        markArray.append(markclass.dataBinMonth[counter][markclass.dataBinMonthHeader.index([yearOld, monthOld])+1])
+                    except:
+                        markArray.append(0)
+                for _m in markArray:
+                    userActiveBalanceRow.append(float(_m))
+
+                userActiveBalance.append(userActiveBalanceRow)
+            counter += 1
+
+
         # This will hold the balance table
         expT = []
         expT.append("\\begin{longtable}{lrr")
@@ -238,6 +307,261 @@ class cbalance(cbase.cbase):
                 expT.append("\\unit[" + str("{:.2f}".format(p)) + "]{\euro} " + _item[2] + " & ")
         expT.append(str(day) + "." + str(month) + "." + str(year) + "\\\\")
         expT.append("\n  \\midrule\n")
+
+        # sort by highest debt
+        userActiveBalance = sorted(userActiveBalance, key=itemgetter(3))
+
+        counter = 0
+        for row in userActiveBalance:
+            # get old balance
+            if float(row[1]) < 0:
+                balanceOld = "\\textcolor{red}{\\unit[" + str("{0:.2f}".format(row[1])) + "]{\euro}}"
+            else:
+                balanceOld = "\\unit[" + str("{0:.2f}".format(row[1])) + "]{\euro}"
+
+            # get payments
+            if float(row[2]) < 0:
+                payment = "\\textcolor{red}{\\unit[" + str("{0:.2f}".format(row[2])) + "]{\euro}}"
+            elif float(row[2]) == 0:
+                payment = ""
+            else:
+                payment = "\\unit[" + str("{0:.2f}".format(row[2])) + "]{\euro}"
+
+            # get new balance
+            if float(row[3]) < 0:
+                balanceNew = "\\textcolor{red}{\\unit[" + str("{0:.2f}".format(row[3])) + "]{\euro}}"
+            else:
+                balanceNew = "\\unit[" + str("{0:.2f}".format(row[3])) + "]{\euro}"
+
+            # get marks
+            marks = ""
+            for _m in range(len(row)-4):
+                if row[_m+4] == 0:
+                    marks += "& "
+                else:
+                    marks += str("{0:.0f}".format(row[_m+4])) + " & "
+
+            expT.append("    " + self.user.getRowById(row[0])[1] + " & "+ str(balanceOld) + " & "+ str(payment) + " & " + marks + balanceNew)
+            expT.append("\\\\\n")
+            if counter < len(userActive)-1:
+                expT.append("    \\midrule\n")
+
+            counter += 1
+        expT.append("  \\bottomrule\n")
+        expT.append("\\end{longtable}\n")
+
+
+        # Create Month template
+        expM = "\lhead{" + datetime.date(1900, monthOld, 1).strftime('%B') + " " + str(yearOld) + "}"
+
+
+        # Compute total consumption of all items
+        expS = []
+        expS.append("\\begin{longtable}{lc}\n")
+        expS.append("  \\toprule\n")
+        expS.append("  & Total Sum\\\\\n")
+        expS.append("  \\midrule\n")
+
+        if len(userActiveBalance) == 0:
+            print("It seems that the current balance is empty.")
+            raise
+
+        sumTotal = [0 for x in range(len(userActiveBalance[0]))]
+        for row in userActiveBalance:
+            for _m in range(len(row)):
+                sumTotal[_m] += row[_m]
+
+        counter = 0
+        for _item in self.item.data:
+            if _item[3] == "active":
+                expS.append("    " + _item[1] + " & " + str("{0:.0f}".format(sumTotal[counter+4])) + "\\\\\n")
+                if counter < len(self.item.data)-1:
+                    expS.append("    \\midrule\n")
+
+            counter += 1
+        expS.append("  \\bottomrule\n")
+        expS.append("\\end{longtable}\n")
+
+
+        # Create Coffee King template - this does not generalize very well...
+        expC = []
+        expC.append("\\begin{longtable}{clc}\n")
+        expC.append("  \\toprule\n")
+        expC.append("  & Name & Coffee\\\\\n")
+        expC.append("  \\midrule\n")
+
+        # sort by highest coffee
+        userActiveCoffeeking = sorted(userActiveBalance, key=itemgetter(4))
+        userActiveCoffeeking.reverse ()
+
+        if len(userActiveCoffeeking) > 3:
+            userActiveCoffeeking = userActiveCoffeeking[0:3]
+
+        counter = 0
+        sum = 0
+        for row in userActiveCoffeeking:
+            marks = str("{0:.0f}".format(row[4]))
+            expC.append("    " + str(counter+1) + ". & " + self.user.getRowById(row[0])[1] + " & " + marks + " (" + str("{0:.1f}".format(100/float(sumTotal[4])*float(row[4]))) + "\%)\\\\\n")
+            expC.append("    \\midrule\n")
+            sum += float(row[4])
+
+            counter += 1
+
+        expC.append("    & Sum & " + str("{0:.0f}".format(sum)) + " (" + str("{0:.1f}".format(100/float(sumTotal[4])*float(sum))) + "\%)\\\\\n")
+        expC.append("  \\bottomrule\n")
+        expC.append("\\end{longtable}\n")
+
+
+        # Create Dairy Queen template - this does not generalize very well...
+        expD = []
+        expD.append("\\begin{longtable}{clc}\n")
+        expD.append("  \\toprule\n")
+        expD.append("  & Name & Milk\\\\\n")
+        expD.append("  \\midrule\n")
+
+        # sort by highest coffee
+        userActiveDairyqueen = sorted(userActiveBalance, key=itemgetter(5))
+        userActiveDairyqueen.reverse ()
+
+        if len(userActiveDairyqueen) > 3:
+            userActiveDairyqueen = userActiveDairyqueen[0:3]
+
+        counter = 0
+        sum = 0
+        for row in userActiveDairyqueen:
+            marks = str("{0:.0f}".format(row[5]))
+            expD.append("    " + str(counter+1) + ". & " + self.user.getRowById(row[0])[1] + " & " + marks + " (" + str("{0:.1f}".format(100/float(sumTotal[5])*float(row[4]))) + "\%)\\\\\n")
+            expD.append("    \\midrule\n")
+            sum += float(row[5])
+
+            counter += 1
+
+        expD.append("    & Sum & " + str("{0:.0f}".format(sum)) + " (" + str("{0:.1f}".format(100/float(sumTotal[5])*float(sum))) + "\%)\\\\\n")
+        expD.append("  \\bottomrule\n")
+        expD.append("\\end{longtable}\n")
+
+
+        # open file
+        template = self.fileOpenTemplate(self.fileTemplateBalanceMonth)
+
+        expL = []
+        for row in template:
+            if not row.find("<template:balancetable>") == -1:
+                for row1 in expT:
+                    expL.append(row1)
+            elif not row.find("<template:month>") == -1:
+                expL.append(expM)
+            elif not row.find("<template:coffeeking>") == -1:
+                for row1 in expC:
+                    expL.append(row1)
+            elif not row.find("<template:dairyqueen>") == -1:
+                for row1 in expD:
+                    expL.append(row1)
+            elif not row.find("<template:totalsum>") == -1:
+                for row1 in expS:
+                    expL.append(row1)
+            else:
+                expL.append(row)
+
+        # write file
+        self.fileWriteTemplate( self.fileOutBalanceMonth + str(year) + "-" + str(month) + "-" + str(day) + ".tex", expL)
+
+
+    def exportMonthListPDF(self, year, month, day):
+        """ This function exports the list of names of year, month to a latex file
+            year: year to create
+            month: month to create
+        """
+
+        year = int(year)
+        month = int(month)
+        day = int(day)
+
+        # quick sanity check for year
+        if not year > 2000:
+            print("Year is not in range", year)
+            raise
+        # quick sanity check for month
+        if not month > 0 or not month < 13:
+            print("Month is not in range", month)
+            raise
+        # quick sanity check for day
+        if not day > 0 or not day < 32:
+            print("Day is not in range", day)
+            raise
+
+        # compute old date
+        monthOld = month-1
+        yearOld = year
+        monthOld2 = month-2
+        yearOld2 = year
+        if monthOld == 0:
+            yearOld = year - 1
+            monthOld = 12
+
+
+        # This list holds all our active and auto active users
+        userActive = self.getAcitvatedUser ()
+
+
+        # This will hold the list table
+        expT = []
+        expT.append("\\begin{longtable}{l")
+        # Add all items
+        for _item in self.item.data:
+            if _item[3] == "active":
+                expT.append("|p{5.5cm}")
+        expT.append("}\n")
+        expT.append("  \\toprule\n")
+        expT.append("  \\multicolumn{1}{c}{Name} ")
+        # Add all items
+        itemPlaceholder = ""
+        for _item in self.item.data:
+            if _item[3] == "active":
+                expT.append(" & \\multicolumn{1}{c}{" + _item[1] + "}")
+                itemPlaceholder += "& "
+        expT.append("\\\\\n  \\midrule\n")
+
+        counter = 0
+        for row in userActive:
+            expT.append("    " + self.user.getRowById(row)[1] + itemPlaceholder + "\\vspace{0.72cm}\\\\\n")
+            if counter < len(userActive)-1:
+                expT.append("    \\midrule\n")
+
+            counter += 1
+        expT.append("  \\bottomrule\n")
+        expT.append("\\end{longtable}\n")
+
+
+        # Create Month template
+        expM = "\lhead{" + datetime.date(1900, monthOld, 1).strftime('%B') + " " + str(yearOld) + "}"
+
+
+        # open file
+        template = self.fileOpenTemplate(self.fileTemplateListMonth)
+
+        expL = []
+        for row in template:
+            if not row.find("<template:listtable>") == -1:
+                for row1 in expT:
+                    expL.append(row1)
+            elif not row.find("<template:month>") == -1:
+                expL.append(expM)
+            else:
+                expL.append(row)
+
+        # write file
+        self.fileWriteTemplate( self.fileOutListMonth + str(year) + "-" + str(month) + "-" + str(day) + ".tex", expL)
+
+
+        # create crazy statistics
+        self.getStatistics(year, month)
+
+
+    def getAcitvatedUser (self):
+        """ Returns array of ids with status either (active) or (auto and active within inactiveMonths)
+            status: Status as string: active, inactive, or auto
+        """
 
         # This list holds all our active and auto active users
         userActive = self.user.getIdByStatus("active")
@@ -267,90 +591,128 @@ class cbalance(cbase.cbase):
         # sort
         userActive.sort()
 
-        counter = 0
-        for row in self.dataBinMonth:
-            # query user
-            user = self.user.getRowById(row[0])
-
-            # user needs to be on list
-            if user[0] in userActive:
-                # get new balance
-                try:
-                    balance = self.dataBinMonth[counter][self.dataBinMonthHeader.index([year, month])+1]
-                except:
-                    print("For user", user[1], "there is no balance information for year", year, "and month", month)
-                    raise
-
-                # get old balance
-                try:
-                    balanceOld = self.dataBinMonth[counter][self.dataBinMonthHeader.index([year, month-1])+1]
-                except:
-                    print("For user", user[1], "there is no balance information for year", year, "and month", month-1)
-                    raise
-                if float(balanceOld) < 0:
-                    balanceOld = "\\textcolor{red}{\\unit[" + str("{0:.2f}".format(balanceOld)) + "]{\euro}}"
-                else:
-                    balanceOld = "\\unit[" + str("{0:.2f}".format(balanceOld)) + "]{\euro}"
-
-                # get payments
-                try:
-                    payment = self.payment.dataBinMonth[counter][self.payment.dataBinMonthHeader.index([year, month])+1]
-                except:
-                    payment = 0;
-                if float(payment) < 0:
-                    payment = "\\textcolor{red}{\\unit[" + str("{0:.2f}".format(payment)) + "]{\euro}}"
-                elif float(payment) == 0:
-                    payment = ""
-                else:
-                    payment = "\\unit[" + str("{0:.2f}".format(payment)) + "]{\euro}"
-
-                # get marks
-                markArray = []
-                for markclass in self.item.marks:
-                    try:
-                        markArray.append(markclass.dataBinMonth[counter][markclass.dataBinMonthHeader.index([year, month])+1])
-                    except:
-                        markArray.append(0)
-                marks = ""
-                for _m in markArray:
-                    if _m == 0:
-                        marks += "& "
-                    else:
-                        marks += str("{0:.0f}".format(_m)) + " & "
-
-                # get new balance
-                try:
-                    balanceNew = self.dataBinMonth[counter][self.dataBinMonthHeader.index([year, month])+1]
-                except:
-                    print("For user", user[1], "there is no balance information for year", year, "and month", month)
-                    raise
-                if float(balanceNew) < 0:
-                    balanceNew = "\\textcolor{red}{\\unit[" + str("{0:.2f}".format(balanceNew)) + "]{\euro}}"
-                else:
-                    balanceNew = "\\unit[" + str("{0:.2f}".format(balanceNew)) + "]{\euro}"
-
-                expT.append("    " + user[1]+ "&"+ str(balanceOld) + " & "+ str(payment) + " & " + marks + balanceNew)
-                expT.append("\\\\\n")
-                if counter < len(self.dataBinMonth)-2:
-                    expT.append("    \\midrule\n")
-
-            counter += 1
-
-        expT.append("  \\bottomrule\n")
-        expT.append("\\end{longtable}\n")
-
-        # open file
-        template = self.fileOpenTemplate(self.fileTemplateBalanceMonth)
-
-        expD = []
-        for row in template:
-            if not row.find("<template:balancetable>") == -1:
-                for row1 in expT:
-                    expD.append(row1)
-            else:
-                expD.append(row)
-
-        # write file
-        self.fileWriteTemplate( self.fileOutBalanceMonth + str(year) + "-" + str(month) + "-" + str(day) + ".tex", expD)
+        return userActive
 
 
+    def getStatistics (self, year, month):
+        """ Creates tons of crazy statistics to use with gnuplot
+            year: year to create
+            month: month to create
+        """
+
+        year = int(year)
+        month = int(month)
+
+        # quick sanity check for year
+        if not year > 2000:
+            print("Year is not in range", year)
+            raise
+        # quick sanity check for month
+        if not month > 0 or not month < 13:
+            print("Month is not in range", month)
+            raise
+
+        # compute old date
+        monthOld = month-1
+        yearOld = year
+        if monthOld == 0:
+            yearOld = year - 1
+            monthOld = 12
+
+        # Compute total consumption
+        markSum = [[0 for x in range(0)] for x in range(0)]
+        for _markclass in self.item.marks:
+            markSumRow = [0 for x in range(len(self.item.marks[0].dataBinMonthHeader))]
+            for _marks in _markclass.dataBinMonth:
+                # add all vectors
+                markSumRow = [sum(x) for x in zip(markSumRow, _marks)]
+            # remove ids
+            del markSumRow[0]
+            markSum.append(markSumRow)
+
+
+        # loop through all users
+        for _counter in range(0, len(self.dataBinMonth)):
+            user = self.user.getRowById(_counter)
+            paymentH = copy.deepcopy(self.payment.dataBinMonthHeader)
+            payment = copy.deepcopy(self.payment.dataBinMonth[_counter])
+            del payment[0]
+            balanceH = copy.deepcopy(self.dataBinMonthHeader)
+            balance = copy.deepcopy(self.dataBinMonth[_counter])
+            del balance[0]
+
+            # get marks
+            markArray = []
+            markArrayH = []
+            for _markclass in self.item.marks:
+                markArray.append(copy.deepcopy(_markclass.dataBinMonth[_counter]))
+                del markArray[-1][0]
+                markArrayH = copy.deepcopy(_markclass.dataBinMonthHeader)
+
+
+            ######################################################
+            # Months vs. Item Consumption
+
+            expMonthsVsItem = []
+            for _row in markArrayH:
+                expMonthsVsItem.append(str(_row[0]) + "-" + str(_row[1]))
+            expMonthsVsItem = [expMonthsVsItem] + markArray
+
+            expMonthsVsItem = self.getTranspose(expMonthsVsItem)
+            expMonthsVsItem_t = []
+            for _row in expMonthsVsItem:
+                for _row1 in _row:
+                    expMonthsVsItem_t.append(str(_row1) + "\t")
+                expMonthsVsItem_t.append("\n")
+
+            # write file
+            self.fileWriteTemplate( self.fileOutFolder + "/month-item_" + str(user[0]) + ".dat", expMonthsVsItem_t)
+
+
+            ######################################################
+            # Months vs. Payment
+
+            expMonthsVsPayment = []
+            for _row in zip(paymentH, payment):
+                expMonthsVsPayment.append(str(_row[0][0])+ "-" + str(_row[0][1]) + "\t" + str(_row[1]) + "\n")
+
+            # write file
+            self.fileWriteTemplate( self.fileOutFolder + "/month-payment_" + str(user[0]) + ".dat", expMonthsVsPayment)
+
+
+            ######################################################
+            # Months vs. Balance
+
+            expMonthsVsBalance = []
+            for _row in zip(balanceH, balance):
+                expMonthsVsBalance.append(str(_row[0][0])+ "-" + str(_row[0][1]) + "\t" + str("{:.2f}".format(_row[1])) + "\n")
+
+            # write file
+            self.fileWriteTemplate( self.fileOutFolder + "/month-balance_" + str(user[0]) + ".dat", expMonthsVsBalance)
+
+
+            ######################################################
+            # Percentage of Consumption
+
+            marksConsumption = []
+            for _marks in markArray:
+                marksConsumption.append(_marks[markArrayH.index([yearOld, monthOld])])
+
+            expPercentage = [str(user[1])]
+            for _row in zip(markSum, _marks):
+                expPercentage.append("\t" + str("{:.2f}".format(1/float(_row[0][markArrayH.index([yearOld, monthOld])])*float(_row[1]))))
+            expPercentage.append("\nOther")
+            for _row in zip(markSum, _marks):
+                expPercentage.append("\t" + str("{:.2f}".format(1-(1/float(_row[0][markArrayH.index([yearOld, monthOld])])*float(_row[1])))))
+            expPercentage.append("\n")
+
+            # write file
+            self.fileWriteTemplate( self.fileOutFolder + "/percentage_" + str(user[0]) + ".dat", expPercentage)
+
+
+
+    def getTranspose (self, M):
+        """ Transposes an array
+            see https://stackoverflow.com/questions/23392986/how-to-transpose-an-array-in-python-3
+        """
+        return [[M[j][i] for j in range(len(M))] for i in range(len(M[0]))]

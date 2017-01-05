@@ -22,6 +22,7 @@ import os.path
 import sys
 import csv
 import datetime
+import operator
 
 
 class cbase:
@@ -362,7 +363,7 @@ class cbase:
         return activeIds
 
 
-    def sortArrayHigh(array, cols):
+    def sortArrayHigh(self, array, cols):
         """ sort an array by multiple columns, first element is highest
             array: a list of lists (or tuple of tuples) where each inner list 
                    represents a row
@@ -375,13 +376,14 @@ class cbase:
         return table
 
 
-    def sortArrayLow(array, cols):
+    def sortArrayLow(self, array, cols):
         """ sort an array by multiple columns, first element is lowest
             array: a list of lists (or tuple of tuples) where each inner list 
                    represents a row
             cols:  a list (or tuple) specifying the column numbers to sort by
                    e.g. (1,0) would sort by column 1, then by column 0
         """
+        table = [[0 for x in range(0)] for x in range(0)]
         for col in reversed(cols):
             table = sorted(table, key=operator.itemgetter(col))
         return table

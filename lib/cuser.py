@@ -21,6 +21,11 @@ from lib import cbase
 
 
 class cuser(cbase.cbase):
+    def __init__(self, filename, inactiveMonths):
+        super().__init__(filename)
+        self.inactiveMonths = inactiveMonths
+
+
     def userAdd(self, user):
         """ Adds a user to the user database
             user: User as array ["Name", "Mail", "status:active, inactive, auto"]
