@@ -698,19 +698,83 @@ class cbalance(cbase.cbase):
             for _marks in markArray:
                 marksConsumption.append(_marks[markArrayH.index([yearOld, monthOld])])
 
-            expPercentage = [str(user[1])]
-            for _row in zip(markSum, _marks):
-                expPercentage.append("\t" + str("{:.2f}".format(1/float(_row[0][markArrayH.index([yearOld, monthOld])])*float(_row[1]))))
-            expPercentage.append("\nOther")
-            for _row in zip(markSum, _marks):
-                expPercentage.append("\t" + str("{:.2f}".format(1-(1/float(_row[0][markArrayH.index([yearOld, monthOld])])*float(_row[1])))))
-            expPercentage.append("\n")
+            counter = 0
+            for _row in zip(markSum, marksConsumption):
+                expPercentage = [str(counter) + "\t" + str("{:.2f}".format(1-(1/float(_row[0][markArrayH.index([yearOld, monthOld])-1])*float(_row[1])))) + "\t" + str("{:.2f}".format(1/float(_row[0][markArrayH.index([yearOld, monthOld])-1])*float(_row[1]))) + "\n"]
+                # write file
+                self.fileWriteTemplate( self.fileOutFolder + "/percentage-" + str(counter) + "_" + str(user[0]) + ".dat", expPercentage)
+                counter += 1
+
+
+            ######################################################
+            # Create a gnuplot script
+
+            expGnuplot = []
+            expGnuplot.append("reset\n")
+            expGnuplot.append("set terminal png size 1024,768\n")
+            expGnuplot.append("set grid\n")
+            expGnuplot.append("set xlabel \' '\n")
+            expGnuplot.append("set ylabel \' \'\n")
+            expGnuplot.append("set xtics nomirror\n")
+            expGnuplot.append("set ytics nomirror\n")
+            expGnuplot.append("set style line 1 lc rgb \'#AA0000\' lt 1 lw 2 pt 1 ps 1.5\n")
+            expGnuplot.append("set style line 2 lc rgb \'#0000AA\' lt 2 lw 2 pt 2 ps 1.5\n")
+            expGnuplot.append("set style line 3 lc rgb \'#00AA00\' lt 3 lw 2 pt 3 ps 1.5\n")
+            expGnuplot.append("set style line 11 lc rgb \'#ff8d2a\' lt 1 lw 2 pt 1 ps 1.5\n")
+            expGnuplot.append("set style line 12 lc rgb \'#31e2ff\' lt 2 lw 2 pt 2 ps 1.5\n")
+            expGnuplot.append("\n")
+            expGnuplot.append("\n")
+            expGnuplot.append("set output \'month-balance_" + str(user[0]) + ".png\'\n")
+            expGnuplot.append("set timefmt \'%Y-%m\'\n")
+            expGnuplot.append("set xdata time\n")
+            expGnuplot.append("set format x \'%Y-%m\'\n")
+            expGnuplot.append("set xtics rotate by 60 offset -2,-2.5\n")
+            expGnuplot.append("set style histogram\n")
+            expGnuplot.append("set style data histogram\n")
+            expGnuplot.append("set style fill solid\n")
+            expGnuplot.append("set ylabel \'Balance [€]\'\n")
+            expGnuplot.append("plot \'month-balance_" + str(user[0]) + ".dat\' using 1:2:($2 >= 0 ? 0x00AA00 : 0xAA0000) ti \'\' linecolor rgb variable w boxes\n")
+            expGnuplot.append("\n")
+            expGnuplot.append("\n")
+            expGnuplot.append("set output \'month-payment_" + str(user[0]) + ".png\'\n")
+            expGnuplot.append("set ylabel \'Payment [€]\'\n")
+            expGnuplot.append("plot \'month-payment_" + str(user[0]) + ".dat\' using 1:2:($2 >= 0 ? 0x00AA00 : 0xAA0000) ti \'\' linecolor rgb variable w boxes\n")
+            expGnuplot.append("\n")
+            expGnuplot.append("\n")
+            expGnuplot.append("set output 'month-item_" + str(user[0]) + ".png\'\n")
+            expGnuplot.append("unset timefmt\n")
+            expGnuplot.append("unset xdata\n")
+            expGnuplot.append("unset format x\n")
+            expGnuplot.append("set ylabel \'Consumption\'\n")
+            expGnuplot.append("set boxwidth 0.8\n")
+            expGnuplot.append("set style data histogram\n")
+            expGnuplot.append("set style histogram clustered gap 2\n")
+            expGnuplot.append("set key inside right top box opaque\n")
+            expGnuplot.append("everyfifth(col) = ((int(column(col)) % 2 == 0) ? stringcolumn(1) : \'\')\n")
+            expGnuplot.append("plot \'month-item_" + str(user[0]) + ".dat\' using 2:xticlabel((everyfifth(0))) ls 1 ti \'Coffee\', \'\' u 3 ls 2 ti \'Milk\'\n")
+            expGnuplot.append("\n")
+            expGnuplot.append("\n")
+            expGnuplot.append("set output \'month-percentage_" + str(user[0]) + ".png\'\n")
+            expGnuplot.append("set ylabel \'Consumption [%]\'\n")
+            expGnuplot.append("unset style data\n")
+            expGnuplot.append("unset style histogram\n")
+            expGnuplot.append("set style fill solid\n")
+            expGnuplot.append("set style data boxes\n")
+            expGnuplot.append("set boxwidth 0.8\n")
+            expGnuplot.append("set xtics (\'Coffee\' 0, \'Milk\' 1)\n")
+            expGnuplot.append("set xtics rotate by 0 offset 0,0\n")
+            expGnuplot.append("set xrange [-1:2]\n")
+            expGnuplot.append("set yrange [0:1]\n")
+            expGnuplot.append("set key inside right bottom box opaque\n")
+            expGnuplot.append("plot \'percentage-0_" + str(user[0]) + ".dat\' u 1:($2+$3) ti \'" + str(user[1]) + "\' ls 1, \\\n")
+            expGnuplot.append("                       \'\' u 1:2 ti \'other\' ls 11 w boxes, \\\n")
+            expGnuplot.append("     \'percentage-1_" + str(user[0]) + ".dat\' u 1:($2+$3) ti \'" + str(user[1]) + "\' ls 2, \\\n")
+            expGnuplot.append("                       \'\' u 1:2 ti \'other\' ls 12\n")
 
             # write file
-            self.fileWriteTemplate( self.fileOutFolder + "/percentage_" + str(user[0]) + ".dat", expPercentage)
-
-
-
+            self.fileWriteTemplate( self.fileOutFolder + "/" + str(user[0]) + ".plot", expGnuplot)
+            
+            
     def getTranspose (self, M):
         """ Transposes an array
             see https://stackoverflow.com/questions/23392986/how-to-transpose-an-array-in-python-3
