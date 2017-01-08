@@ -658,8 +658,47 @@ class cbalance(cbase.cbase):
 
         ######################################################
         # Coffee King and Dairy Queen
-#        max_value = max(my_list)
-#        max_index = my_list.index(max_value)
+
+        markArray = [[0 for x in range(0)] for x in range(0)]
+        for _markclass in self.item.marks:
+            markArray.append(copy.deepcopy(_markclass.dataBinMonth))
+
+        # markMax
+        # [item [month [id, value]]]
+        markMax = [[[0 for x in range(0)] for x in range(0)] for x in range(0)]
+        for _item in markArray:
+            _item = self.getTranspose(_item)
+            # remove ids
+            del _item[0]
+            # remove last month
+            del _item[-1]
+
+            markMaxMonth = [[0 for x in range(0)] for x in range(0)]
+            for _month in _item:
+                max_value = max(_month)
+                max_index = _month.index(max_value)
+                markMaxMonth.append([max_index, max_value])
+
+            markMax.append(markMaxMonth)
+
+        # Compute Histogram
+        markHistogram = [[0 for x in range(len(self.user.data))] for x in range(len(markMax))]
+        counter = 0
+        for _item in markMax:
+            for month in _item:
+                markHistogram[counter][month[0]] += 1
+            counter += 1
+
+        #for _item in markMax:
+        #    counter = 0
+        #    for month in _item:
+        #        print(markArrayH[counter], month, self.user.getRowById(month[0]))
+        #        counter += 1
+
+        #for _user in self.user.data:
+        #    print(_user, markHistogram[0][_user[0]], markHistogram[1][_user[0]])
+
+
 
         ######################################################
         # Create a gnuplot script
