@@ -630,6 +630,64 @@ class cbalance(cbase.cbase):
             del markSumRow[0]
             markSum.append(markSumRow)
 
+        # get marks
+        markArrayH = []
+        for _markclass in self.item.marks:
+            markArrayH = copy.deepcopy(_markclass.dataBinMonthHeader)
+
+
+        ######################################################
+        # Months vs. Total Item Consumption
+
+        expMonthsVsTotalitem = []
+        for _row in markArrayH:
+            expMonthsVsTotalitem.append(str(_row[0]) + "-" + str("{0:02d}".format(_row[1])))
+        expMonthsVsTotalitem = [expMonthsVsTotalitem] + markSum
+        del expMonthsVsTotalitem[0][-1]
+
+        expMonthsVsTotalitem = self.getTranspose(expMonthsVsTotalitem)
+        expMonthsVsTotalitem_t = []
+        for _row in expMonthsVsTotalitem:
+            for _row1 in _row:
+                expMonthsVsTotalitem_t.append(str(_row1) + "\t")
+            expMonthsVsTotalitem_t.append("\n")
+
+        # write file
+        self.fileWriteTemplate( self.fileOutFolder + "/month-totalitem.dat", expMonthsVsTotalitem_t)
+
+
+        ######################################################
+        # Create a gnuplot script
+
+        expGnuplot = []
+        expGnuplot.append("reset\n")
+        expGnuplot.append("set terminal png size 1024,768\n")
+        expGnuplot.append("set grid\n")
+        expGnuplot.append("set xlabel \' '\n")
+        expGnuplot.append("set ylabel \' \'\n")
+        expGnuplot.append("set xtics nomirror\n")
+        expGnuplot.append("set ytics nomirror\n")
+        expGnuplot.append("set style line 1 lc rgb \'#AA0000\' lt 1 lw 2 pt 1 ps 1.5\n")
+        expGnuplot.append("set style line 2 lc rgb \'#0000AA\' lt 2 lw 2 pt 2 ps 1.5\n")
+        expGnuplot.append("set style line 3 lc rgb \'#00AA00\' lt 3 lw 2 pt 3 ps 1.5\n")
+        expGnuplot.append("set style line 11 lc rgb \'#ff8d2a\' lt 1 lw 2 pt 1 ps 1.5\n")
+        expGnuplot.append("set style line 12 lc rgb \'#31e2ff\' lt 2 lw 2 pt 2 ps 1.5\n")
+        expGnuplot.append("\n")
+        expGnuplot.append("\n")
+        expGnuplot.append("set xtics rotate by 60 offset -2,-2.5\n")
+        expGnuplot.append("set style fill solid\n")
+        expGnuplot.append("set output 'month-totalitem.png\'\n")
+        expGnuplot.append("set ylabel \'Consumption\'\n")
+        expGnuplot.append("set boxwidth 0.8\n")
+        expGnuplot.append("set style data histogram\n")
+        expGnuplot.append("set style histogram clustered gap 2\n")
+        expGnuplot.append("set key inside right top box opaque\n")
+        expGnuplot.append("everyfifth(col) = ((int(column(col)) % 2 == 0) ? stringcolumn(1) : \'\')\n")
+        expGnuplot.append("plot \'month-totalitem.dat\' using 2:xticlabel((everyfifth(0))) ls 1 ti \'Coffee\', \'\' u 3 ls 2 ti \'Milk\'\n")
+
+        # write file
+        self.fileWriteTemplate( self.fileOutFolder + "/all.plot", expGnuplot)
+
 
         # loop through all users
         for _counter in range(0, len(self.dataBinMonth)):
@@ -655,7 +713,7 @@ class cbalance(cbase.cbase):
 
             expMonthsVsItem = []
             for _row in markArrayH:
-                expMonthsVsItem.append(str(_row[0]) + "-" + str(_row[1]))
+                expMonthsVsItem.append(str(_row[0]) + "-" + str("{0:02d}".format(_row[1])))
             expMonthsVsItem = [expMonthsVsItem] + markArray
 
             expMonthsVsItem = self.getTranspose(expMonthsVsItem)
@@ -674,7 +732,7 @@ class cbalance(cbase.cbase):
 
             expMonthsVsPayment = []
             for _row in zip(paymentH, payment):
-                expMonthsVsPayment.append(str(_row[0][0])+ "-" + str(_row[0][1]) + "\t" + str(_row[1]) + "\n")
+                expMonthsVsPayment.append(str(_row[0][0])+ "-" + str("{0:02d}".format(_row[0][1])) + "\t" + str(_row[1]) + "\n")
 
             # write file
             self.fileWriteTemplate( self.fileOutFolder + "/month-payment_" + str(user[0]) + ".dat", expMonthsVsPayment)
@@ -685,7 +743,7 @@ class cbalance(cbase.cbase):
 
             expMonthsVsBalance = []
             for _row in zip(balanceH, balance):
-                expMonthsVsBalance.append(str(_row[0][0])+ "-" + str(_row[0][1]) + "\t" + str("{:.2f}".format(_row[1])) + "\n")
+                expMonthsVsBalance.append(str(_row[0][0])+ "-" + str("{0:02d}".format(_row[0][1])) + "\t" + str("{:.2f}".format(_row[1])) + "\n")
 
             # write file
             self.fileWriteTemplate( self.fileOutFolder + "/month-balance_" + str(user[0]) + ".dat", expMonthsVsBalance)
