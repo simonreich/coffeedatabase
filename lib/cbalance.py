@@ -657,6 +657,11 @@ class cbalance(cbase.cbase):
 
 
         ######################################################
+        # Coffee King and Dairy Queen
+#        max_value = max(my_list)
+#        max_index = my_list.index(max_value)
+
+        ######################################################
         # Create a gnuplot script
 
         expGnuplot = []
