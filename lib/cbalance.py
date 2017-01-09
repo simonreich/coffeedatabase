@@ -283,6 +283,8 @@ class cbalance(cbase.cbase):
                 userActiveBalance.append(userActiveBalanceRow)
             counter += 1
 
+        self.userActiveBalance = userActiveBalance
+
 
         # This will hold the balance table
         expT = []
@@ -468,7 +470,7 @@ class cbalance(cbase.cbase):
 
 
         # create crazy statistics
-        self.getStatistics(year, month)
+        self.getStatistics(year, month, day)
 
 
     def exportMonthListPDF(self, year, month, day):
@@ -594,7 +596,7 @@ class cbalance(cbase.cbase):
         return userActive
 
 
-    def getStatistics (self, year, month):
+    def getStatistics (self, year, month, day):
         """ Creates tons of crazy statistics to use with gnuplot
             year: year to create
             month: month to create
@@ -682,11 +684,11 @@ class cbalance(cbase.cbase):
             markMax.append(markMaxMonth)
 
         # Compute Histogram
-        markHistogram = [[0 for x in range(len(self.user.data))] for x in range(len(markMax))]
+        markMaxHistogram = [[0 for x in range(len(self.user.data))] for x in range(len(markMax))]
         counter = 0
         for _item in markMax:
             for month in _item:
-                markHistogram[counter][month[0]] += 1
+                markMaxHistogram[counter][month[0]] += 1
             counter += 1
 
         #for _item in markMax:
@@ -696,7 +698,7 @@ class cbalance(cbase.cbase):
         #        counter += 1
 
         #for _user in self.user.data:
-        #    print(_user, markHistogram[0][_user[0]], markHistogram[1][_user[0]])
+        #    print(_user, markMaxHistogram[0][_user[0]], markMaxHistogram[1][_user[0]])
 
 
 
@@ -875,8 +877,146 @@ class cbalance(cbase.cbase):
 
             # write file
             self.fileWriteTemplate( self.fileOutFolder + "/" + str(user[0]) + ".plot", expGnuplot)
-            
-            
+         
+
+        ######################################################
+        # Create webpage: main page
+
+        now = datetime.datetime.now()
+        year = int(now.strftime("%Y"))
+        month = int(now.strftime("%m"))
+        expWebMain = [] 
+        expWebMain.append(".. title: DPI Coffee Page\n")
+        expWebMain.append(".. slug: main\n")
+        expWebMain.append(".. date: " + now.strftime("%Y") + "-" + now.strftime("%m") + "-" + now.strftime("%d") + " " + now.strftime("%H") + ":" + now.strftime("%M") + ":" + now.strftime("%S") + " UTC+01:00\n")
+        expWebMain.append(".. tags:\n")
+        expWebMain.append(".. author: Simon Reich\n")
+        expWebMain.append(".. category:\n")
+        expWebMain.append(".. link: https://coffee.physik3.gwdg.de\n")
+        expWebMain.append(".. description: \n")
+        expWebMain.append(".. type: text\n")
+        expWebMain.append("\n")
+        expWebMain.append("\n")
+        expWebMain.append("Balance\n")
+        expWebMain.append("=======\n")
+        expWebMain.append("\n")
+        expWebMain.append("Download the `latest balance <https://coffee.physik3.gwdg.de/assets/" + self.fileOutBalanceMonth + str(year) + "-" + str(month) + "-" + str(day) + ".pdf>`_ as pdf. \n")
+        expWebMain.append("\n")
+        expWebMain.append("Consumption\n")
+        expWebMain.append("===========\n")
+        expWebMain.append("\n")
+        expWebMain.append("The graph below shows the total coffee and milk usage.\n")
+        expWebMain.append("\n")
+        expWebMain.append(".. thumbnail:: ../galleries/statistics/month-totalitem.png\n")
+        expWebMain.append("\n")
+        expWebMain.append("In " + datetime.date(1900, monthOld, 1).strftime('%B') + " " + str(yearOld) + " " + self.user.getRowById(markMax[0][-1][0])[1] + " drank the most coffee and became Coffee King with " + str("{0:.0f}".format(markMax[0][-1][1])) + " cups. Runner ups:\n")
+        expWebMain.append("\n")
+
+        # sort by highest coffee
+        userActiveCoffeeking = sorted(self.userActiveBalance, key=itemgetter(4))
+        userActiveCoffeeking.reverse ()
+
+        if len(userActiveCoffeeking) > 3:
+            userActiveCoffeeking = userActiveCoffeeking[0:3]
+
+        counter = 0
+        for row in userActiveCoffeeking:
+            expWebMain.append(str(counter+1) + ". " + self.user.getRowById(row[0])[1] + " (" + str("{0:.0f}".format(row[4])) + ")\n")
+            counter += 1
+
+        expWebMain.append("\n")
+        expWebMain.append("Dairy Queen is " + self.user.getRowById(markMax[1][-1][0])[1] + ":\n")
+        expWebMain.append("\n")
+
+        # sort by highest milk
+        userActiveCoffeeking = sorted(self.userActiveBalance, key=itemgetter(5))
+        userActiveCoffeeking.reverse ()
+
+        if len(userActiveCoffeeking) > 3:
+            userActiveCoffeeking = userActiveCoffeeking[0:3]
+
+        counter = 0
+        for row in userActiveCoffeeking:
+            expWebMain.append(str(counter+1) + ". " + self.user.getRowById(row[0])[1] + " (" + str("{0:.0f}".format(row[5])) + ")\n\n")
+            counter += 1
+
+        expWebMain.append("\n")
+        expWebMain.append("All Coffee Drinkers\n")
+        expWebMain.append("===================\n")
+        expWebMain.append("\n")
+
+        counter = 0
+        for _row in self.userActiveBalance:
+            expWebMain.append(str(counter+1) + ". `" + self.user.getRowById(_row[0])[1] + " <https://coffee.physik3.gwdg.de/posts/" + str(counter) + ".html>`_ (Current Balance: " + str("{0:.2f}".format(_row[3])) + "€)\n\n")
+            counter += 1
+
+        # write file
+        self.fileWriteTemplate( self.fileOutFolder + "/main.rst", expWebMain)
+         
+
+        ######################################################
+        # Create webpage: user pages
+
+        # loop through all users
+        for _counter in range(0, len(self.dataBinMonth)):
+            user = self.user.getRowById(_counter)
+            paymentH = copy.deepcopy(self.payment.dataBinMonthHeader)
+            payment = copy.deepcopy(self.payment.dataBinMonth[_counter])
+            del payment[0]
+            balanceH = copy.deepcopy(self.dataBinMonthHeader)
+            balance = copy.deepcopy(self.dataBinMonth[_counter])
+            del balance[0]
+
+            # get marks
+            markArray = []
+            markArrayH = []
+            for _markclass in self.item.marks:
+                markArray.append(copy.deepcopy(_markclass.dataBinMonth[_counter]))
+                del markArray[-1][0]
+                markArrayH = copy.deepcopy(_markclass.dataBinMonthHeader)
+
+            expWebUser = []
+            expWebUser.append(".. title: Gisa K\n")
+            expWebUser.append(".. slug: 0\n")
+            expWebUser.append(".. date: 2016-03-30 23:00:00 UTC-03:00\n")
+            expWebUser.append(".. tags: Gisa K\n")
+            expWebUser.append(".. author: Simon Reich\n")
+            expWebUser.append(".. link: https://coffee.physik3.gwdg.de/posts/0.html\n")
+            expWebUser.append(".. description:\n")
+            expWebUser.append(".. category: All Coffeeusers\n")
+            expWebUser.append("\n")
+            expWebUser.append("Gisa K drank 8 Coffee and 8 Milk in December 2016. Measured on the total consumption in December 2016 this is:\n")
+            expWebUser.append("\n")
+            expWebUser.append(".. thumbnail:: ../galleries/statistics/month-percentage_0.png\n")
+            expWebUser.append("\n")
+            expWebUser.append("The time line of all items is:\n")
+            expWebUser.append("\n")
+            expWebUser.append(".. thumbnail:: ../galleries/statistics/month-item_0.png\n")
+            expWebUser.append("\n")
+            expWebUser.append("Gisa K was 0 times Coffee King and 1 times Diary Queen:\n")
+            expWebUser.append("\n")
+            expWebUser.append("* November 2013: Coffee King\n")
+            expWebUser.append("* November 2013: Dairy Queen\n")
+            expWebUser.append("\n")
+            expWebUser.append("Balance\n")
+            expWebUser.append("=======\n")
+            expWebUser.append("\n")
+            expWebUser.append("The current balance is at: 5,00€. Here is a full list of all payments:\n")
+            expWebUser.append("\n")
+            expWebUser.append("* 01.11.2013 5,00€\n")
+            expWebUser.append("* 01.11.2013 5,00€\n")
+            expWebUser.append("* 01.11.2013 5,00€\n")
+            expWebUser.append("* 01.11.2013 5,00€\n")
+            expWebUser.append("\n")
+            expWebUser.append(".. thumbnail:: ../galleries/statistics/month-payment_0.png\n")
+            expWebUser.append("\n")
+            expWebUser.append("THe time line of the balance is as follows:\n")
+            expWebUser.append("\n")
+            expWebUser.append(".. thumbnail:: ../galleries/statistics/month-balance_0.png\n")
+            expWebUser.append("\n")
+            expWebUser.append("`Back <https://coffee.physik3.gwdg.de/>`_\n")
+
+
     def getTranspose (self, M):
         """ Transposes an array
             see https://stackoverflow.com/questions/23392986/how-to-transpose-an-array-in-python-3
