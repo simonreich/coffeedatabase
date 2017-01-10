@@ -945,9 +945,11 @@ class cbalance(cbase.cbase):
         expWebMain.append("===================\n")
         expWebMain.append("\n")
 
+        userActive = self.getAcitvatedUser ()
         counter = 0
-        for _row in self.userActiveBalance:
-            expWebMain.append(str(counter+1) + ". `" + self.user.getRowById(_row[0])[1] + " <https://coffee.physik3.gwdg.de/posts/" + str(counter) + ".html>`_ (Current Balance: " + str("{0:.2f}".format(_row[3])) + "€)\n\n")
+        for _counter in range(0, len(self.dataBinMonth)):
+            if _counter in userActive:
+                expWebMain.append(str(counter+1) + ". `" + self.user.getRowById(_counter)[1] + " <https://coffee.physik3.gwdg.de/posts/" + str(_counter) + ".html>`_ (Current Balance: " + str("{0:.2f}".format(self.dataBinMonth[_counter][-1])) + "€)\n\n")
             counter += 1
 
         # write file
@@ -976,45 +978,61 @@ class cbalance(cbase.cbase):
                 markArrayH = copy.deepcopy(_markclass.dataBinMonthHeader)
 
             expWebUser = []
-            expWebUser.append(".. title: Gisa K\n")
-            expWebUser.append(".. slug: 0\n")
-            expWebUser.append(".. date: 2016-03-30 23:00:00 UTC-03:00\n")
-            expWebUser.append(".. tags: Gisa K\n")
+            expWebUser.append(".. title: DPI Coffee Page: " + user[1] + "\n")
+            expWebUser.append(".. slug: " + str(_counter) + "\n")
+            expWebMain.append(".. date: " + now.strftime("%Y") + "-" + now.strftime("%m") + "-" + now.strftime("%d") + " " + now.strftime("%H") + ":" + now.strftime("%M") + ":" + now.strftime("%S") + " UTC+00:59\n")
+            expWebUser.append(".. tags: " + user[1] + "\n")
             expWebUser.append(".. author: Simon Reich\n")
-            expWebUser.append(".. link: https://coffee.physik3.gwdg.de/posts/0.html\n")
+            expWebUser.append(".. link: https://coffee.physik3.gwdg.de/posts/" + str(_counter) + ".html\n")
             expWebUser.append(".. description:\n")
             expWebUser.append(".. category: All Coffeeusers\n")
             expWebUser.append("\n")
-            expWebUser.append("Gisa K drank 8 Coffee and 8 Milk in December 2016. Measured on the total consumption in December 2016 this is:\n")
+            expWebUser.append(user[1] + " drank " + str("{0:.0f}".format(markArray[0][-1])) + " Coffee and " + str("{0:.0f}".format(markArray[1][-1])) + " Milk in " + datetime.date(1900, monthOld, 1).strftime('%B') + " " + str(yearOld) + ". Measured on the total consumption in " + datetime.date(1900, monthOld, 1).strftime('%B') + " " + str(yearOld) + " this is:\n")
             expWebUser.append("\n")
-            expWebUser.append(".. thumbnail:: ../galleries/statistics/month-percentage_0.png\n")
+            expWebUser.append(".. thumbnail:: ../galleries/statistics/month-percentage_" + str(_counter) + ".png\n")
             expWebUser.append("\n")
             expWebUser.append("The time line of all items is:\n")
             expWebUser.append("\n")
-            expWebUser.append(".. thumbnail:: ../galleries/statistics/month-item_0.png\n")
+            expWebUser.append(".. thumbnail:: ../galleries/statistics/month-item_" + str(_counter) + ".png\n")
             expWebUser.append("\n")
-            expWebUser.append("Gisa K was 0 times Coffee King and 1 times Diary Queen:\n")
+            if markMaxHistogram[0][user[0]] == 1:
+                expWebUser.append(user[1] + " was 1 time Coffee King:\n")
+            elif markMaxHistogram[0][user[0]] > 1:
+                expWebUser.append(user[1] + " was " + str(markMaxHistogram[0][_counter]) + " times Coffee King:\n")
             expWebUser.append("\n")
-            expWebUser.append("* November 2013: Coffee King\n")
-            expWebUser.append("* November 2013: Dairy Queen\n")
+            for _month in zip(markMax[0], markArrayH):
+                if _month[0][0] == user[0]:
+                    expWebUser.append("* " + datetime.date(1900, _month[1][1], 1).strftime('%B') + " " + str(_month[1][0])  + ": Coffee King (coffee: " + str("{0:2.0f}".format(_month[0][1])) + ")\n")
+            expWebUser.append("\n")
+            if markMaxHistogram[1][user[0]] == 1:
+                expWebUser.append(user[1] + " was 1 time Dairy Queen:\n")
+            elif markMaxHistogram[1][user[0]] > 1:
+                expWebUser.append(user[1] + " was " + str(markMaxHistogram[1][_counter]) + " times Dairy Queen:\n")
+            expWebUser.append("\n")
+            for _month in zip(markMax[1], markArrayH):
+                if _month[0][0] == user[0]:
+                    expWebUser.append("* " + datetime.date(1900, _month[1][1], 1).strftime('%B') + " " + str(_month[1][0])  + ": Dairy Queen (milk: " + str("{0:2.0f}".format(_month[0][1])) + ")\n")
             expWebUser.append("\n")
             expWebUser.append("Balance\n")
             expWebUser.append("=======\n")
             expWebUser.append("\n")
-            expWebUser.append("The current balance is at: 5,00€. Here is a full list of all payments:\n")
+            expWebUser.append("The current balance is at: " + str("{0:.2f}".format(self.dataBinMonth[_counter][-1])) + "€. Here is a full list of all payments:\n")
             expWebUser.append("\n")
-            expWebUser.append("* 01.11.2013 5,00€\n")
-            expWebUser.append("* 01.11.2013 5,00€\n")
-            expWebUser.append("* 01.11.2013 5,00€\n")
-            expWebUser.append("* 01.11.2013 5,00€\n")
+            for _row in self.payment.data:
+                if _row[0] == _counter:
+                    if float(_row[4]) != 0:
+                        expWebUser.append("* " + str("{0:02.0f}".format(int(_row[3]))) + "." + str("{0:02.0f}".format(int(_row[2]))) + "." + str("{0:04.0f}".format(int(_row[1]))) + " " + str("{0:.2f}".format(float(_row[4])))+ "€\n")
             expWebUser.append("\n")
-            expWebUser.append(".. thumbnail:: ../galleries/statistics/month-payment_0.png\n")
+            expWebUser.append(".. thumbnail:: ../galleries/statistics/month-payment_" + str(_counter) + ".png\n")
             expWebUser.append("\n")
             expWebUser.append("THe time line of the balance is as follows:\n")
             expWebUser.append("\n")
-            expWebUser.append(".. thumbnail:: ../galleries/statistics/month-balance_0.png\n")
+            expWebUser.append(".. thumbnail:: ../galleries/statistics/month-balance_" + str(_counter) + ".png\n")
             expWebUser.append("\n")
             expWebUser.append("`Back <https://coffee.physik3.gwdg.de/>`_\n")
+
+            # write file
+            self.fileWriteTemplate( self.fileOutFolder + "/" + str(_counter) + ".rst", expWebUser)
 
 
     def getTranspose (self, M):
