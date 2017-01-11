@@ -1,1 +1,17 @@
+out/
 *.csv
+out/*.rst
+out/*.plot
+out/*.dat
+out/*.png
+out/*.aux
+out/*.bbl
+out/*.blg
+out/*.log
+lib/__pycache__
+
+## Editor tmp und backup files
+\#*.tex\#
+.\#*.tex
+.*.swp
+
