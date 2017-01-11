@@ -120,11 +120,11 @@ def main(argv=None):
             keyboard = ckeyboard.ckeyboard()
             keyboard.priceFill()
 
-        elif(arg == "--balance" or
-                arg == "-b" or
-                arg == "b"):
+        elif(arg == "--balancecheck" or
+                arg == "-bc" or
+                arg == "bc"):
             keyboard = ckeyboard.ckeyboard()
-            keyboard.balance()
+            keyboard.balanceCheck()
 
         elif(arg == "--balanceexportpdf" or
                 arg == "-bep" or

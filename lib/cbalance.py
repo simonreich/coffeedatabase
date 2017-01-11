@@ -1050,3 +1050,13 @@ class cbalance(cbase.cbase):
             see https://stackoverflow.com/questions/23392986/how-to-transpose-an-array-in-python-3
         """
         return [[M[j][i] for j in range(len(M))] for i in range(len(M[0]))]
+
+
+    def getBalance (self, userid):
+        """ Prints the latest balance user with id userid
+            userid: id of user
+        """
+        now = datetime.datetime.now()
+
+        print("")
+        print("Balance on " + now.strftime("%d") + "." + now.strftime("%m") + "." + now.strftime("%Y") + ": " + str("{0:.2f}".format(self.dataBinMonth[userid][-1])) + "€.\n")

@@ -201,6 +201,11 @@ class ckeyboard:
         # save in database
         self.payment.paymentAdd(payment)
 
+        # print new balance
+        self.payment.getDataBinMonth()
+        self.balance.getDataBinMonth()
+        self.balance.getBalance(user[0])
+
         return 0
 
 
@@ -512,3 +517,15 @@ class ckeyboard:
 
         # create balance class
         self.balance.exportMonthListPDF(inputDate[0], inputDate[1], 1)
+
+
+    def balanceCheck(self):
+        """ Prints a users balance
+        """
+
+        user = self.getRowByTextname(self.user.getNamelist(), self.user)
+
+        # print balance
+        self.balance.getBalance(user[0])
+
+        return 0
