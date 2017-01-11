@@ -19,16 +19,36 @@
 \usepackage{color}
 
 \pagestyle{fancy}
-\lhead{test}
-\chead{test}
-\rhead{Seite \thepage\ von \pageref{LastPage}}
+\lhead{}
+<template:month>
+\chead{\huge Coffee Balance}
+\rhead{Page \thepage\ of \pageref{LastPage}}
+\lfoot{}
+\cfoot{}
+\rfoot{}
 
 
 \begin{document}
 
-
 <template:balancetable>
 
+\newpage
 
-\vfill
+\section*{\centering Total Consumption}
+
+<template:totalsum>
+
+\vspace{2cm}
+
+\section*{\centering Coffee King}
+
+<template:coffeeking>
+
+\vspace{2cm}
+
+\section*{\centering Dairy Queen}
+
+<template:dairyqueen>
+
+
 \end{document}
