@@ -150,6 +150,20 @@ class ckeyboard:
 
         self.user.userAdd(inputUser)
 
+        # Make a dummy payment
+        now = datetime.datetime.now()
+        year = now.strftime("%Y")
+        month = now.strftime("%m")
+        day = now.strftime("%d")
+        user = self.user.getRowByName(inputUser[0])
+        payment = [user[0], year, month, day, 0]
+        self.payment.paymentAdd(payment)
+
+        # Make dummy marks
+        mark = [user[0], year, month, day, 0]
+        for _marks in self.item.marks:
+            _marks.marksAdd(mark)
+
         return 0
 
 
