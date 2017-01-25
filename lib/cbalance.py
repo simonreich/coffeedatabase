@@ -955,6 +955,14 @@ class cbalance(cbase.cbase):
                 expWebMain.append(str(counter+1) + ". `" + self.user.getRowById(_counter)[1] + " <https://coffee.physik3.gwdg.de/posts/" + str(_counter) + ".html>`_ (Current Balance: " + str("{0:.2f}".format(self.dataBinMonth[_counter][-1])) + "€)\n\n")
             counter += 1
 
+        expWebMain.append("\n")
+        expWebMain.append("----\n")
+        expWebMain.append("\n")
+        expWebMain.append(".. image:: https://coffee.physik3.gwdg.de/images/main_footer.jpg\n")
+        expWebMain.append("    :width: 100 %\n")
+        expWebMain.append("    :alt: \n")
+        expWebMain.append("    :align: center\n")
+
         # write file
         self.fileWriteTemplate( self.fileOutFolder + "/main.rst", expWebMain)
          
