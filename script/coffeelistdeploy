@@ -1,0 +1,174 @@
+#!/bin/bash
+#
+# Script for collecting stats from coffeedatabase project und push them
+# via nikola https://getnikola.com into a static web page.
+# Must not run as root
+#
+# Should be copied into ~/bin and used in a cron job.
+# 
+# Prints output only in case of failure.
+#
+# Requieres gnuplot, latex, and latexmk.A
+#
+# (c) 2017 Simon Reich
+
+#######   Configuration variables     ##################################
+
+## cofeedatabase coffee.py
+EXECOFFEE="/usr/bin/python3 /path/to/coffee.py"
+
+## cofeedatabase out folder
+FOLDEROUT="/path/to/database/out"
+
+## nikola stats folder
+FOLDERSTAT="/path/to/nikola/coffeepage/galleries/statistics"
+
+## nikola balance folder
+FOLDERBALANCE="/path/to/nikola/coffeepage/files/out"
+
+## nikola posts folder
+FOLDERPOSTS="/path/to/nikola/coffeepage/posts"
+
+## latex
+EXELATEX="latexmk -silent -pdf"
+
+## gnuplot
+EXEGNUPLOT="/usr/bin/gnuplot"
+
+#######   No configuration below     ##################################
+
+TMPFILE=`mktemp`
+ERROR=0
+
+
+## Trap for cleaning stuff
+function onExit {
+	## Cleanup
+	rm -f ${TMPFILE}
+}
+trap onExit EXIT
+
+
+# Clean out folder
+rm -r ${FOLDEROUT}/*.rst ${FOLDEROUT}/*.pdf ${FOLDEROUT}/*.log ${FOLDEROUT}/*.aux ${FOLDEROUT}/*.plot ${FOLDEROUT}/*.dat ${FOLDEROUT}/*tex ${FOLDEROUT}/*fls ${FOLDEROUT}/*fdb_latexmk &> ${TMPFILE}
+if [ $? != 0 ]
+then
+	ERROR=1
+fi
+
+
+# Run coffeedatabase
+cd ${FOLDEROUT}/.. &> ${TMPFILE}
+if [ $? != 0 ]
+then
+	ERROR=1
+    exit 1
+fi
+${EXECOFFEE} -bep
+if [ $? != 0 ]
+then
+	ERROR=1
+    exit 1
+fi
+
+
+# Run latex
+cd ${FOLDEROUT} &> ${TMPFILE}
+if [ $? != 0 ]
+then
+	ERROR=1
+    exit 1
+fi
+${EXELATEX} ${FOLDEROUT}/*.tex &> ${TMPFILE}
+if [ $? != 0 ]
+then
+	ERROR=1
+    exit 1
+fi
+
+
+# Run gnuplot
+cd ${FOLDEROUT} &> ${TMPFILE}
+if [ $? != 0 ]
+then
+	ERROR=1
+    exit 1
+fi
+for i in `ls -1 *plot`; 
+do 
+    echo "Gnuplot for file " ${i} > ${TMPFILE} 
+    ${EXEGNUPLOT} ${i} &> ${TMPFILE}
+    if [ $? != 0 ]
+    then
+	    ERROR=1
+        exit 1
+    fi
+done
+
+
+# Copy 
+rsync -aPv ${FOLDEROUT}/*.png ${FOLDERSTAT}/ &> ${TMPFILE}
+if [ $? != 0 ]
+then
+	ERROR=1
+    exit 1
+fi
+rsync -aPv ${FOLDEROUT}/*.rst ${FOLDERPOSTS}/ &> ${TMPFILE}
+if [ $? != 0 ]
+then
+	ERROR=1
+    exit 1
+fi
+rsync -aPv ${FOLDEROUT}/*.pdf ${FOLDERBALANCE}/ &> ${TMPFILE}
+if [ $? != 0 ]
+then
+	ERROR=1
+    exit 1
+fi
+
+
+# nikola build webpage
+cd ${FOLDERPOSTS}/../.. &> ${TMPFILE}
+if [ $? != 0 ]
+then
+	ERROR=1
+    exit 1
+fi
+source bin/activate &> ${TMPFILE}
+if [ $? != 0 ]
+then
+	ERROR=1
+    exit 1
+fi
+cd ${FOLDERPOSTS} &> ${TMPFILE}
+nikola build &> ${TMPFILE}
+if [ $? != 0 ]
+then
+	ERROR=1
+    exit 1
+fi
+
+
+# nikola deploy webpage
+cd ${FOLDERPOSTS} &> ${TMPFILE}
+if [ $? != 0 ]
+then
+	ERROR=1
+    exit 1
+fi
+nikola deploy &> ${TMPFILE}
+if [ $? != 0 ]
+then
+	ERROR=1
+    exit 1
+fi
+
+if [ ${ERROR} != 0 ]
+then
+	cat ${TMPFILE}
+	exit 1
+fi
+
+
+## exit normally
+exit ${ERROR}
