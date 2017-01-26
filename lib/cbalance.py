@@ -701,6 +701,37 @@ class cbalance(cbase.cbase):
         #    print(_user, markMaxHistogram[0][_user[0]], markMaxHistogram[1][_user[0]])
 
 
+        ######################################################
+        # Person vs. Consumption
+
+        # get marks
+        markPerson = [[0 for x in range(0)] for x in range(0)]
+        userActive = self.getAcitvatedUser ()
+        for _counter in range(0, len(self.dataBinMonth)):
+            user = self.user.getRowById(_counter)
+
+            # get marks
+            markArray = []
+            for _markclass in self.item.marks:
+                markArray.append(copy.deepcopy(_markclass.dataBinMonth[_counter]))
+                del markArray[-1][0]
+            if _counter in userActive:
+                markPerson.append([user[1], markArray[0][-2], markArray[1][-2]])
+
+        # sort by coffee
+        markPerson1 = sorted(markPerson, key=itemgetter(1), reverse=True)
+        markPerson2 = sorted(markPerson, key=itemgetter(2), reverse=True)
+
+        # write file
+        expPersonVsConsumption = []
+        for _row in markPerson1:
+            expPersonVsConsumption.append("\"" + str(_row[0]) + "\" " + str(_row[1]) + "\n")
+        self.fileWriteTemplate( self.fileOutFolder + "/person-consumption-0.dat", expPersonVsConsumption)
+        expPersonVsConsumption = []
+        for _row in markPerson2:
+            expPersonVsConsumption.append("\"" + str(_row[0]) + "\" " + str(_row[2]) + "\n")
+        self.fileWriteTemplate( self.fileOutFolder + "/person-consumption-1.dat", expPersonVsConsumption)
+
 
         ######################################################
         # Create a gnuplot script
@@ -731,6 +762,19 @@ class cbalance(cbase.cbase):
         expGnuplot.append("set key inside right top box opaque\n")
         expGnuplot.append("everyfifth(col) = ((int(column(col)) % 2 == 0) ? stringcolumn(1) : \'\')\n")
         expGnuplot.append("plot \'month-totalitem.dat\' using 2:xticlabel((everyfifth(0))) ls 1 ti \'Coffee\', \'\' u 3 ls 2 ti \'Milk\'\n")
+        expGnuplot.append("\n")
+        expGnuplot.append("\n")
+        expGnuplot.append("set output \'person-consumption-0.png\'\n")
+        expGnuplot.append("set xtics rotate by 60 offset 0.2,0.1 right\n")
+        expGnuplot.append("set xtics font \', 10\'\n")
+        expGnuplot.append("set bmargin 8.5\n")
+        expGnuplot.append("plot \'person-consumption-0.dat\' using 2:xticlabel(1) ls 1 ti \'Coffee\'\n")
+        expGnuplot.append("\n")
+        expGnuplot.append("set output \'person-consumption-1.png\'\n")
+        expGnuplot.append("set xtics rotate by 60 offset 0.2,0.1 right\n")
+        expGnuplot.append("set xtics font \', 10\'\n")
+        expGnuplot.append("set bmargin 8.5\n")
+        expGnuplot.append("plot \'person-consumption-1.dat\' using 2:xticlabel(1) ls 2 ti \'Milk\'\n")
 
         # write file
         self.fileWriteTemplate( self.fileOutFolder + "/all.plot", expGnuplot)
@@ -943,6 +987,12 @@ class cbalance(cbase.cbase):
             expWebMain.append(str(counter+1) + ". " + self.user.getRowById(row[0])[1] + " (" + str("{0:.0f}".format(row[5])) + ")\n\n")
             counter += 1
 
+        expWebMain.append("\n")
+        expWebMain.append("In case you are still wondering how you rank, here is the full list:\n")
+        expWebMain.append("\n")
+        expWebMain.append(".. thumbnail:: ../galleries/statistics/person-consumption-0.png\n")
+        expWebMain.append("\n")
+        expWebMain.append(".. thumbnail:: ../galleries/statistics/person-consumption-1.png\n")
         expWebMain.append("\n")
         expWebMain.append("All Coffee Drinkers\n")
         expWebMain.append("===================\n")
