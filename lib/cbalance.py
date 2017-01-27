@@ -21,6 +21,7 @@ This file is part of coffeedatabase.
 import datetime
 from operator import itemgetter
 import copy
+import numpy as np
 
 # coffeedatabase
 from lib import cbase
@@ -718,7 +719,7 @@ class cbalance(cbase.cbase):
             if _counter in userActive:
                 markPerson.append([user[1], markArray[0][-2], markArray[1][-2]])
 
-        # sort by coffee
+        # sort by coffee/milk
         markPerson1 = sorted(markPerson, key=itemgetter(1), reverse=True)
         markPerson2 = sorted(markPerson, key=itemgetter(2), reverse=True)
 
@@ -731,6 +732,58 @@ class cbalance(cbase.cbase):
         for _row in markPerson2:
             expPersonVsConsumption.append("\"" + str(_row[0]) + "\" " + str(_row[2]) + "\n")
         self.fileWriteTemplate( self.fileOutFolder + "/person-consumption-1.dat", expPersonVsConsumption)
+
+        # create histogram
+        markPersonHist1 = []
+        markPersonEdges1 = []
+        counter = -4.5
+        for _row in markPerson1:
+            markPersonHist1.append(_row[1])
+            markPersonEdges1.append(counter)
+            counter += 5
+        markPersonHist2 = []
+        markPersonEdges2 = []
+        counter = -4.5
+        for _row in markPerson2:
+            markPersonHist2.append(_row[2])
+            markPersonEdges2.append(counter)
+            counter += 5
+
+        [markPersonHist1, markPersonHistEdges1] = np.histogram(markPersonHist1, markPersonEdges1)
+        [markPersonHist2, markPersonHistEdges2] = np.histogram(markPersonHist2, markPersonEdges2)
+
+        for _counter in range(len(markPersonHist1)-1, 0, -1):
+            if markPersonHist1[_counter] == 0:
+                markPersonHist1 = np.delete(markPersonHist1, _counter)
+                markPersonHistEdges1 = np.delete(markPersonHistEdges1, _counter)
+            else:
+                break
+        for _counter in range(len(markPersonHist2)-1, 0, -1):
+            if markPersonHist2[_counter] == 0:
+                markPersonHist2 = np.delete(markPersonHist2, _counter)
+                markPersonHistEdges2 = np.delete(markPersonHistEdges2, _counter)
+            else:
+                break
+
+        # write file
+        expPersonVsConsumption = []
+        counter = 0
+        for _row in zip(markPersonHist1, markPersonHistEdges1):
+            if counter == 0:
+                expPersonVsConsumption.append("\"0\" " + str(_row[0]) + "\n")
+            else:
+                expPersonVsConsumption.append("\"" + str(int(_row[1])) + " < n ≤ " + str(int(_row[1]+5)) + "\" " + str(_row[0]) + "\n")
+            counter += 1
+        self.fileWriteTemplate( self.fileOutFolder + "/person-consumption-hist-0.dat", expPersonVsConsumption)
+        expPersonVsConsumption = []
+        counter = 0
+        for _row in zip(markPersonHist2, markPersonHistEdges2):
+            if counter == 0:
+                expPersonVsConsumption.append("\"0\" " + str(_row[0]) + "\n")
+            else:
+                expPersonVsConsumption.append("\"" + str(int(_row[1])) + " < n ≤ " + str(int(_row[1]+5)) + "\" " + str(_row[0]) + "\n")
+            counter += 1
+        self.fileWriteTemplate( self.fileOutFolder + "/person-consumption-hist-1.dat", expPersonVsConsumption)
 
 
         ######################################################
@@ -758,23 +811,65 @@ class cbalance(cbase.cbase):
         expGnuplot.append("set yrange[0:*]\n")
         expGnuplot.append("set boxwidth 0.8\n")
         expGnuplot.append("set style data histogram\n")
-        expGnuplot.append("set style histogram clustered gap 2\n")
+        expGnuplot.append("set style histogram clustered gap 1\n")
         expGnuplot.append("set key inside right top box opaque\n")
         expGnuplot.append("everyfifth(col) = ((int(column(col)) % 2 == 0) ? stringcolumn(1) : \'\')\n")
         expGnuplot.append("plot \'month-totalitem.dat\' using 2:xticlabel((everyfifth(0))) ls 1 ti \'Coffee\', \'\' u 3 ls 2 ti \'Milk\'\n")
         expGnuplot.append("\n")
         expGnuplot.append("\n")
         expGnuplot.append("set output \'person-consumption-0.png\'\n")
+        expGnuplot.append("set multiplot\n")
+        expGnuplot.append("set nogrid\n")
         expGnuplot.append("set xtics rotate by 60 offset 0.2,0.1 right\n")
         expGnuplot.append("set xtics font \', 10\'\n")
+        expGnuplot.append("set xlabel \'\'\n")
+        expGnuplot.append("set ylabel \'Consumption\'\n")
+        expGnuplot.append("set title \'\'\n")
         expGnuplot.append("set bmargin 8.5\n")
         expGnuplot.append("plot \'person-consumption-0.dat\' using 2:xticlabel(1) ls 1 ti \'Coffee\'\n")
         expGnuplot.append("\n")
+        expGnuplot.append("set grid\n")
+        expGnuplot.append("set xtics rotate by 60 offset 0.2,0.1 right\n")
+        expGnuplot.append("set xtics font \', 12\'\n")
+        expGnuplot.append("set xlabel \'\'\n")
+        expGnuplot.append("set ylabel \'People\'\n")
+        expGnuplot.append("set title \'Histogram\'\n")
+        expGnuplot.append("set bmargin 4.5\n")
+        expGnuplot.append("set size 0.5, 0.5\n")
+        expGnuplot.append("set origin 0.48,0.46\n")
+        expGnuplot.append("set nokey\n")
+        expGnuplot.append("set object 1 rectangle from graph 0,0 to graph 1,1 behind fillcolor rgb \'white\' fillstyle solid noborder\n")
+        expGnuplot.append("plot 'person-consumption-hist-0.dat' using 2:xticlabel(1) ls 1 ti \'\'\n")
+        expGnuplot.append("unset multiplot\n")
+        expGnuplot.append("\n")
+        expGnuplot.append("\n")
         expGnuplot.append("set output \'person-consumption-1.png\'\n")
+        expGnuplot.append("set multiplot\n")
+        expGnuplot.append("set nogrid\n")
         expGnuplot.append("set xtics rotate by 60 offset 0.2,0.1 right\n")
         expGnuplot.append("set xtics font \', 10\'\n")
+        expGnuplot.append("set xlabel \'\'\n")
+        expGnuplot.append("set ylabel \'Consumption\'\n")
+        expGnuplot.append("set title \'\'\n")
         expGnuplot.append("set bmargin 8.5\n")
+        expGnuplot.append("set size 1,1\n")
+        expGnuplot.append("set origin 0,0\n")
+        expGnuplot.append("set key inside right top box opaque\n")
         expGnuplot.append("plot \'person-consumption-1.dat\' using 2:xticlabel(1) ls 2 ti \'Milk\'\n")
+        expGnuplot.append("\n")
+        expGnuplot.append("set grid\n")
+        expGnuplot.append("set xtics rotate by 60 offset 0.2,0.1 right\n")
+        expGnuplot.append("set xtics font \', 12\'\n")
+        expGnuplot.append("set xlabel \'\'\n")
+        expGnuplot.append("set ylabel \'People\'\n")
+        expGnuplot.append("set title \'Histogram\'\n")
+        expGnuplot.append("set bmargin 4.5\n")
+        expGnuplot.append("set size 0.5, 0.5\n")
+        expGnuplot.append("set origin 0.48,0.46\n")
+        expGnuplot.append("set nokey\n")
+        expGnuplot.append("set object 1 rectangle from graph 0,0 to graph 1,1 behind fillcolor rgb \'white\' fillstyle solid noborder\n")
+        expGnuplot.append("plot 'person-consumption-hist-1.dat' using 2:xticlabel(1) ls 2 ti \'\'\n")
+        expGnuplot.append("unset multiplot\n")
 
         # write file
         self.fileWriteTemplate( self.fileOutFolder + "/all.plot", expGnuplot)
@@ -905,7 +1000,7 @@ class cbalance(cbase.cbase):
             expGnuplot.append("\n")
             expGnuplot.append("\n")
             expGnuplot.append("set output \'month-percentage_" + str(user[0]) + ".png\'\n")
-            expGnuplot.append("set ylabel \'Consumption [%]\'\n")
+            expGnuplot.append("set ylabel \'Normalized Consumption\'\n")
             expGnuplot.append("unset yrange\n")
             expGnuplot.append("unset style data\n")
             expGnuplot.append("unset style histogram\n")
