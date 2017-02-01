@@ -519,19 +519,27 @@ class cbalance(cbase.cbase):
             if _item[3] == "active":
                 expT.append("|p{5.5cm}")
         expT.append("}\n")
-        expT.append("  \\toprule\n")
-        expT.append("  \\multicolumn{1}{c}{Name} ")
+        expT.append("  \\multicolumn{1}{c}{} ")
         # Add all items
         itemPlaceholder = ""
         for _item in self.item.data:
             if _item[3] == "active":
                 expT.append(" & \\multicolumn{1}{c}{" + _item[1] + "}")
                 itemPlaceholder += "& "
-        expT.append("\\\\\n  \\midrule\n")
+        expT.append("\\\\\n")
+        # Add all items prices
+        expT.append("  \\multicolumn{1}{c}{} ")
+        for _item in self.item.data:
+            if _item[3] == "active":
+                p = self.price.getDataBinMonthByDate(_item[0],  int(year), int(month))
+                expT.append(" & \\multicolumn{1}{c}{ \\unit[" + str("{:.2f}".format(p)) + "]{\euro} " + _item[2] + "}")
+        expT.append("\\\\\n")
+        expT.append("  \\toprule\n")
+
 
         counter = 0
         for row in userActive:
-            expT.append("    " + self.user.getRowById(row)[1] + itemPlaceholder + "\\vspace{0.72cm}\\\\\n")
+            expT.append("    " + self.user.getRowById(row)[1] + itemPlaceholder + "\\vspace{0.68cm}\\\\\n")
             if counter < len(userActive)-1:
                 expT.append("    \\midrule\n")
 
@@ -541,7 +549,7 @@ class cbalance(cbase.cbase):
 
 
         # Create Month template
-        expM = "\lhead{" + datetime.date(1900, monthOld, 1).strftime('%B') + " " + str(yearOld) + "}"
+        expM = "\lhead{" + datetime.date(1900, month, 1).strftime('%B') + " " + str(yearOld) + "}"
 
 
         # open file
