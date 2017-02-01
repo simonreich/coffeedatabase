@@ -146,7 +146,7 @@ class ckeyboard:
         userStandard = ["", "institut@gwdg.de"]
 
         inputUser = self.inputStandard(userDescription, userStandard)
-        inputUser.append("auto")
+        inputUser.append("active")
 
         self.user.userAdd(inputUser)
 
@@ -155,7 +155,7 @@ class ckeyboard:
         year = now.strftime("%Y")
         month = now.strftime("%m")
         day = now.strftime("%d")
-        user = self.user.getRowByName(inputUser[0])
+        user = self.user.getRowByName(inputUser[1], 1)
         payment = [user[0], year, month, day, 0]
         self.payment.paymentAdd(payment)
 
