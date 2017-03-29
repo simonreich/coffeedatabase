@@ -185,9 +185,9 @@ class cbalance(cbase.cbase):
 
         # we need to add up all cells in one row for final balance
         counter = 0
-        for row in self.dataBinMonth:
+        for _row in self.dataBinMonth:
             counter1 = 0
-            for cell in row:
+            for _cell in _row:
                 # first cell contains user id, second cell is first cell and does not need to be add up
                 if counter1 > 1:
                     self.dataBinMonth[counter][counter1] += float(self.dataBinMonth[counter][counter1-1])
@@ -1038,7 +1038,7 @@ class cbalance(cbase.cbase):
         expWebMain = [] 
         expWebMain.append(".. title: DPI Coffee Page\n")
         expWebMain.append(".. slug: main\n")
-        expWebMain.append(".. date: " + now.strftime("%Y") + "-" + now.strftime("%m") + "-" + now.strftime("%d") + " " + now.strftime("%H") + ":" + now.strftime("%M") + ":" + now.strftime("%S") + " UTC+01:00\n")
+        expWebMain.append(".. date: " + now.strftime("%Y") + "-" + now.strftime("%m") + "-" + now.strftime("%d") + " " + now.strftime("%H") + ":" + now.strftime("%M") + ":" + now.strftime("%S") + " UTC+02:00\n")
         expWebMain.append(".. tags:\n")
         expWebMain.append(".. author: Simon Reich\n")
         expWebMain.append(".. category:\n")
@@ -1106,7 +1106,7 @@ class cbalance(cbase.cbase):
         for _counter in range(0, len(self.dataBinMonth)):
             if _counter in userActive:
                 expWebMain.append(str(counter+1) + ". `" + self.user.getRowById(_counter)[1] + " <https://coffee.physik3.gwdg.de/posts/" + str(_counter) + ".html>`_ (Current Balance: " + str("{0:.2f}".format(self.dataBinMonth[_counter][-1])) + "€)\n\n")
-            counter += 1
+                counter += 1
 
         expWebMain.append("\n")
         expWebMain.append("----\n")
@@ -1144,7 +1144,7 @@ class cbalance(cbase.cbase):
             expWebUser = []
             expWebUser.append(".. title: DPI Coffee Page: " + user[1] + "\n")
             expWebUser.append(".. slug: " + str(_counter) + "\n")
-            expWebUser.append(".. date: " + now.strftime("%Y") + "-" + now.strftime("%m") + "-" + now.strftime("%d") + " " + now.strftime("%H") + ":" + now.strftime("%M") + ":" + now.strftime("%S") + " UTC+01:00\n")
+            expWebUser.append(".. date: " + now.strftime("%Y") + "-" + now.strftime("%m") + "-" + now.strftime("%d") + " " + now.strftime("%H") + ":" + now.strftime("%M") + ":" + now.strftime("%S") + " UTC+02:00\n")
             expWebUser.append(".. tags: " + user[1] + "\n")
             expWebUser.append(".. author: Simon Reich\n")
             expWebUser.append(".. link: https://coffee.physik3.gwdg.de/posts/" + str(_counter) + ".html\n")
