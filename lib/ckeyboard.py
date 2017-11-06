@@ -357,6 +357,12 @@ class ckeyboard:
         month = now.strftime("%m")
         day = now.strftime("%d")
 
+        # This is done usually in the following month, meaning we need to adapt the date to last month
+        month -= 1
+        day = 1
+        if month == 0:
+            month = 12
+
         for userId in userActive:
             user = self.user.getRowById(userId)
 
