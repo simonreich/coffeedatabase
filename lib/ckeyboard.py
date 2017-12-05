@@ -353,9 +353,9 @@ class ckeyboard:
 
         # create dates
         now = datetime.datetime.now()
-        year = now.strftime("%Y")
-        month = now.strftime("%m")
-        day = now.strftime("%d")
+        year = int(now.strftime("%Y"))
+        month = int(now.strftime("%m"))
+        day = int(now.strftime("%d"))
 
         # This is done usually in the following month, meaning we need to adapt the date to last month
         month -= 1
