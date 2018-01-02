@@ -549,7 +549,7 @@ class cbalance(cbase.cbase):
 
 
         # Create Month template
-        expM = "\lhead{" + datetime.date(1900, month, 1).strftime('%B') + " " + str(yearOld) + "}"
+        expM = "\lhead{" + datetime.date(1900, month, 1).strftime('%B') + " " + str(year) + "}"
 
 
         # open file
