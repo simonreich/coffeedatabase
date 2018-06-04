@@ -433,13 +433,19 @@ class cbalance(cbase.cbase):
         sum = 0
         for row in userActiveDairyqueen:
             marks = str("{0:.0f}".format(row[5]))
-            expD.append("    " + str(counter+1) + ". & " + self.user.getRowById(row[0])[1] + " & " + marks + " (" + str("{0:.1f}".format(100/float(sumTotal[5])*float(row[4]))) + "\%)\\\\\n")
+            if float(sumTotal[5]) == 0:
+                expD.append("    " + str(counter+1) + ". & " + self.user.getRowById(row[0])[1] + " & " + marks + " (" + str("{0:.1f}".format(100/1*float(row[4]))) + "\%)\\\\\n")
+            else:
+                expD.append("    " + str(counter+1) + ". & " + self.user.getRowById(row[0])[1] + " & " + marks + " (" + str("{0:.1f}".format(100/float(sumTotal[5])*float(row[4]))) + "\%)\\\\\n")
             expD.append("    \\midrule\n")
             sum += float(row[5])
 
             counter += 1
 
-        expD.append("    & Sum & " + str("{0:.0f}".format(sum)) + " (" + str("{0:.1f}".format(100/float(sumTotal[5])*float(sum))) + "\%)\\\\\n")
+        if float(sumTotal[5]) == 0:
+            expD.append("    & Sum & " + str("{0:.0f}".format(sum)) + " (" + str("{0:.1f}".format(100/1*float(sum))) + "\%)\\\\\n")
+        else:
+            expD.append("    & Sum & " + str("{0:.0f}".format(sum)) + " (" + str("{0:.1f}".format(100/float(sumTotal[5])*float(sum))) + "\%)\\\\\n")
         expD.append("  \\bottomrule\n")
         expD.append("\\end{longtable}\n")
 
