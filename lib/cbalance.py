@@ -958,7 +958,12 @@ class cbalance(cbase.cbase):
 
             counter = 0
             for _row in zip(markSum, marksConsumption):
-                expPercentage = [str(counter) + "\t" + str("{:.2f}".format(1-(1/float(_row[0][markArrayH.index([yearOld, monthOld])-1])*float(_row[1])))) + "\t" + str("{:.2f}".format(1/float(_row[0][markArrayH.index([yearOld, monthOld])-1])*float(_row[1]))) + "\n"]
+                expPercentage = ""
+                if (float(_row[0][markArrayH.index([yearOld, monthOld])-1]) != 0):
+                    expPercentage = [str(counter) + "\t" + str("{:.2f}".format(1-(1/float(_row[0][markArrayH.index([yearOld, monthOld])-1])*float(_row[1])))) + "\t" + str("{:.2f}".format(1/float(_row[0][markArrayH.index([yearOld, monthOld])-1])*float(_row[1]))) + "\n"]
+                else:
+                    expPercentage = [str(counter) + "\t" + str("{:.2f}".format(1-(1/float(1)*float(_row[1])))) + "\t" + str("{:.2f}".format(1/float(1)*float(_row[1]))) + "\n"]
+
                 # write file
                 self.fileWriteTemplate( self.fileOutFolder + "/percentage-" + str(counter) + "_" + str(user[0]) + ".dat", expPercentage)
                 counter += 1
@@ -1052,12 +1057,12 @@ class cbalance(cbase.cbase):
         expWebMain.append(".. description: \n")
         expWebMain.append(".. type: text\n")
         expWebMain.append("\n")
-        expWebMain.append("`Current Temperature <https://coffee.physik3.gwdg.de/assets/temperature-7d.png>`_ of water heater:\n")
-        expWebMain.append("\n")
-        expWebMain.append(".. raw:: html\n")
-        expWebMain.append("\n")
-        expWebMain.append("    <?php echo file_get_contents(\'assets/temperature-time.txt\') ?>\n")
-        expWebMain.append("\n")
+        #expWebMain.append("`Current Temperature <https://coffee.physik3.gwdg.de/assets/temperature-7d.png>`_ of water heater:\n")
+        #expWebMain.append("\n")
+        #expWebMain.append(".. raw:: html\n")
+        #expWebMain.append("\n")
+        #expWebMain.append("    <?php echo file_get_contents(\'assets/temperature-time.txt\') ?>\n")
+        #expWebMain.append("\n")
         expWebMain.append("Balance\n")
         expWebMain.append("=======\n")
         expWebMain.append("\n")
