@@ -38,7 +38,7 @@ pip install numpy
 ## Usage
 
 | Parameter | Description |
----------------------------
+|-----------|-------------|
 | `--useradd`, `-ua`, `ua` | Adds a new user to the database. The new user is appended to the file `user.csv`.|
 | `--userchange`, `-uc`, `uc` | Allows to search for a user in the database and change his/her info. The user's data in `user.csv` is directly manipulated.|
 | `--paymentadd`, `-pa`, `pa` | Allows to search for a user in the database and adds a payment to the user's money balance. The new payment is appended to the file `payment.csv`.|
